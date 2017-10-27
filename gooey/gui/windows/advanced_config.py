@@ -7,6 +7,9 @@ Managed the internal layout for configuration options
 
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
+
+from gui.widgets.components import RadioGroup
+
 try:
     from itertools import zip_longest
 except ImportError:
@@ -49,11 +52,28 @@ class WidgetContainer(wx.Panel):
 
   def populate(self, widgets, num_columns):
     for index, widget in enumerate(widgets):
-      widget_class = getattr(components, widget.type)
-      widget_instance = widget_class(self, widget.title, widget.help, widget.choices)
-      widget.widget_instance = widget_instance
-      self.widgets.append(widget_instance)
+      if widget.type == 'RadioGroup':
+        recipies = []
+        for w in widget.widgets:
+          widget_class = getattr(components, w.type)
+          recipies.append(self.thunk_widget(w, widget_class))
+        rg = RadioGroup(self, *recipies)
+        widget.widget_instance = rg
+        self.widgets.append(rg)
+      else:
+        widget_class = getattr(components, widget.type)
+        widget_instance = widget_class(self, widget.title, widget.help, widget.choices)
+        widget.widget_instance = widget_instance
+        self.widgets.append(widget_instance)
     self.layout(num_columns)
+
+
+  def thunk_widget(self, widget, widget_class):
+    def inner(parent):
+      return widget_class(parent, widget.title, widget.help, widget.choices)
+    return inner
+
+
 
   def get_values(self):
     return [x.get_value() for x in self.widgets]

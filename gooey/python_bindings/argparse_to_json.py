@@ -44,14 +44,6 @@ class UnsupportedConfiguration(Exception):
   pass
 
 
-{
-  'siege': {
-    'command': 'siege',
-    'display_name': 'Siege',
-    'contents': []
-  }
-}
-
 
 def convert(parser):
   widget_dict = getattr(parser, 'widgets', {})
@@ -83,11 +75,20 @@ def convert(parser):
 
 
 def process(parser, widget_dict):
+
+
+
   mutually_exclusive_groups = [
                   [mutex_action for mutex_action in group_actions._group_actions]
                   for group_actions in parser._mutually_exclusive_groups]
 
+  meg_required = [group_actions.required for group_actions in
+                  parser._mutually_exclusive_groups]
+
   group_options = list(chain(*mutually_exclusive_groups))
+
+  xs = [build_radio_group(list(categorize(group, widget_dict)), required)
+        for group, required in zip(mutually_exclusive_groups, meg_required)]
 
   base_actions = [action for action in parser._actions
                   if action not in group_options
@@ -98,7 +99,8 @@ def process(parser, widget_dict):
 
   return list(categorize(required_actions, widget_dict, required=True)) + \
          list(categorize(optional_actions, widget_dict)) + \
-         list(map(build_radio_group, mutually_exclusive_groups))
+         xs
+
 
 def categorize(actions, widget_dict, required=False):
   _get_widget = partial(get_widget, widgets=widget_dict)
@@ -117,10 +119,12 @@ def categorize(actions, widget_dict, required=False):
     else:
       raise UnknownWidgetType(action)
 
+
 def get_widget(action, widgets):
   supplied_widget = widgets.get(action.dest, None)
   type_arg_widget = 'FileChooser' if action.type == argparse.FileType else None
   return supplied_widget or type_arg_widget or None
+
 
 def is_required(action):
   '''
@@ -129,17 +133,22 @@ def is_required(action):
   '''
   return not isinstance(action, _SubParsersAction) and (action.required == True and action.nargs not in ['*', '?'])
 
+
 def has_required(actions):
   return list(filter(None, list(filter(is_required, actions))))
+
 
 def is_subparser(action):
   return isinstance(action,_SubParsersAction)
 
+
 def has_subparsers(actions):
     return list(filter(is_subparser, actions))
 
+
 def get_subparser(actions):
     return list(filter(is_subparser, actions))[0]
+
 
 def is_optional(action):
   '''
@@ -147,9 +156,11 @@ def is_optional(action):
   '''
   return (not action.required) or action.nargs in ['*', '?']
 
+
 def is_choice(action):
   ''' action with choices supplied '''
   return action.choices
+
 
 def is_standard(action):
   """ actions which are general "store" instructions.
@@ -165,40 +176,36 @@ def is_standard(action):
           and not isinstance(action, _HelpAction)
           and type(action) not in boolean_actions)
 
+
 def is_flag(action):
   """ _actions which are either storeconst, store_bool, etc.. """
   action_types = [_StoreTrueAction, _StoreFalseAction, _StoreConstAction]
   return any(list(map(lambda Action: isinstance(action, Action), action_types)))
 
+
 def is_counter(action):
   """ _actions which are of type _CountAction """
   return isinstance(action, _CountAction)
 
+
 def is_default_progname(name, subparser):
   return subparser.prog == '{} {}'.format(os.path.split(sys.argv[0])[-1], name)
+
 
 def choose_name(name, subparser):
   return name if is_default_progname(name, subparser) else subparser.prog
 
-def build_radio_group(mutex_group):
-  if not mutex_group:
-    return []
 
-  options = [
-    {
-      'display_name': mutex_arg.metavar or mutex_arg.dest,
-      'help': mutex_arg.help,
-      'nargs': mutex_arg.nargs or '',
-      'commands': mutex_arg.option_strings,
-      'choices': mutex_arg.choices,
-    } for mutex_arg in mutex_group
-  ]
-
+def build_radio_group(mutex_group, is_required):
   return {
     'type': 'RadioGroup',
     'group_name': 'Choose Option',
-    'required': False,
-    'data': options
+    'required': is_required,
+    'data': {
+      'commands': [command for widget in mutex_group
+                   for command in widget['data']['commands']],
+      'widgets': mutex_group
+    }
   }
 
 

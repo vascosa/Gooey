@@ -99,12 +99,20 @@ class BaseGuiComponent(object):
       self.help_msg.Wrap(container_width)
     evt.Skip()
 
+
   def get_value(self):
     return self.widget_pack.get_value()
+
 
   def set_value(self, val):
     if val:
       self.widget_pack.widget.SetValue(str(val))
+
+  def disable(self):
+      self.widget_pack.widget.Disable()
+
+  def enable(self):
+      self.widget_pack.widget.Enable()
 
   def __repr__(self):
     return self.__class__.__name__
@@ -155,59 +163,138 @@ class CheckBox(BaseGuiComponent):
   def set_value(self, val):
     self.widget.SetValue(val)
 
+  def disable(self):
+      self.widget.Disable()
+
+  def enable(self):
+      self.widget.Enable()
+
+
+# class RadioGroup(object):
+#   def __init__(self, parent, title, msg, choices=None):
+#     self.panel = None
+#
+#     self.radio_buttons = []
+#     self.option_strings = []
+#     self.help_msgs = []
+#     self.btn_names = []
+#
+#     self.do_layout(parent, title, msg)
+#
+#     self.selected_button = None
+#
+#   def do_layout(self, parent, titles, msgs):
+#     self.panel = wx.Panel(parent)
+#
+#     self.radio_buttons = [wx.RadioButton(self.panel, -1) for _ in titles]
+#     self.btn_names = [wx.StaticText(self.panel, label=title.title()) for title in titles]
+#     self.help_msgs = [wx.StaticText(self.panel, label=msg.title()) for msg in msgs]
+#
+#     # box = wx.StaticBox(self.panel, -1, label=self.data['group_name'])
+#     box = wx.StaticBox(self.panel, -1, label='')
+#     vertical_container = wx.StaticBoxSizer(box, wx.VERTICAL)
+#
+#     for button, name, help in zip(self.radio_buttons, self.btn_names, self.help_msgs):
+#
+#       hbox = wx.BoxSizer(wx.HORIZONTAL)
+#
+#       hbox.Add(button, 0, wx.ALIGN_TOP | wx.ALIGN_LEFT)
+#       hbox.Add(name, 0, wx.LEFT, 10)
+#
+#       vertical_container.Add(hbox, 0, wx.EXPAND)
+#
+#       vertical_container.Add(help, 1, wx.EXPAND | wx.LEFT, 25)
+#       vertical_container.AddSpacer(5)
+#
+#     self.panel.SetSizer(vertical_container)
+#     self.panel.Bind(wx.EVT_SIZE, self.onResize)
+#
+#     for button in self.radio_buttons:
+#       button.Bind(wx.EVT_LEFT_DOWN, self.handle_selection)
+#
+#     return self.panel
+#
+#   def handle_selection(self, event):
+#     if event.EventObject.Id == getattr(self.selected_button, 'Id', None):
+#       # if it is already selected, manually deselect it
+#       self.selected_button.SetValue(False)
+#       self.selected_button = None
+#     else:
+#       event.Skip()
+#       self.selected_button = event.EventObject
+#
+#   def onResize(self, evt):
+#     msg = self.help_msgs[0]
+#     container_width, _ = self.panel.Size
+#     text_width, _ = msg.Size
+#
+#     if text_width != container_width:
+#       msg.SetLabel(msg.GetLabelText().replace('\n', ' '))
+#       msg.Wrap(container_width)
+#     evt.Skip()
+#
+#   def get_value(self):
+#     return [button.GetValue() for button in self.radio_buttons]
+#
+#   def set_value(self, val):
+#     pass
+
 
 class RadioGroup(object):
-  def __init__(self, parent, title, msg, choices=None):
+  def __init__(self, parent, *widgets):
+    self.parent = parent
     self.panel = None
-
+    self.widgets = widgets
     self.radio_buttons = []
     self.option_strings = []
     self.help_msgs = []
     self.btn_names = []
-
-    self.do_layout(parent, title, msg)
-
+    self.mapping = {}
     self.selected_button = None
 
-  def do_layout(self, parent, titles, msgs):
+    self.do_layout(parent)
+
+  def do_layout(self, parent, *args, **kwargs):
     self.panel = wx.Panel(parent)
+    self.widgets = [w(self.panel) for w in self.widgets]
+    for widget in self.widgets:
+        widget.disable()
 
-    self.radio_buttons = [wx.RadioButton(self.panel, -1) for _ in titles]
-    self.btn_names = [wx.StaticText(self.panel, label=title.title()) for title in titles]
-    self.help_msgs = [wx.StaticText(self.panel, label=msg.title()) for msg in msgs]
+    self.radio_buttons = [wx.RadioButton(self.panel, -1) for _ in self.widgets]
 
-    # box = wx.StaticBox(self.panel, -1, label=self.data['group_name'])
-    box = wx.StaticBox(self.panel, -1, label='')
+    box = wx.StaticBox(self.panel, -1, label='Choose Option')
     vertical_container = wx.StaticBoxSizer(box, wx.VERTICAL)
 
-    for button, name, help in zip(self.radio_buttons, self.btn_names, self.help_msgs):
-
-      hbox = wx.BoxSizer(wx.HORIZONTAL)
-
-      hbox.Add(button, 0, wx.ALIGN_TOP | wx.ALIGN_LEFT)
-      hbox.Add(name, 0, wx.LEFT, 10)
-
-      vertical_container.Add(hbox, 0, wx.EXPAND)
-
-      vertical_container.Add(help, 1, wx.EXPAND | wx.LEFT, 25)
-      vertical_container.AddSpacer(5)
+    for b,w in zip(self.radio_buttons, self.widgets):
+        h = wx.BoxSizer(wx.HORIZONTAL)
+        h.Add(b, 0)
+        h.Add(w.panel, 1)
+        vertical_container.Add(h, 1, wx.EXPAND)
+        self.mapping[b] = w
 
     self.panel.SetSizer(vertical_container)
-    self.panel.Bind(wx.EVT_SIZE, self.onResize)
+    self.panel.Layout()
 
     for button in self.radio_buttons:
-      button.Bind(wx.EVT_LEFT_DOWN, self.handle_selection)
+        button.Bind(wx.EVT_LEFT_DOWN, self.handle_selection)
 
     return self.panel
 
+  def active_widget(self):
+      return self.mapping.get(self.selected_button, None)
+
   def handle_selection(self, event):
+    for button in self.radio_buttons:
+        self.mapping[button].disable()
     if event.EventObject.Id == getattr(self.selected_button, 'Id', None):
       # if it is already selected, manually deselect it
+      self.mapping[self.selected_button].disable()
       self.selected_button.SetValue(False)
       self.selected_button = None
     else:
       event.Skip()
       self.selected_button = event.EventObject
+      self.mapping[self.selected_button].enable()
 
   def onResize(self, evt):
     msg = self.help_msgs[0]
@@ -220,10 +307,16 @@ class RadioGroup(object):
     evt.Skip()
 
   def get_value(self):
-    return [button.GetValue() for button in self.radio_buttons]
+    if self.selected_button:
+        return (self.radio_buttons.index(self.selected_button),
+                self.mapping[self.selected_button].get_value())
+    else:
+        return [None, None]
 
   def set_value(self, val):
     pass
+
+
 
 
 class Listbox(BaseGuiComponent):
