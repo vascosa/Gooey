@@ -6,7 +6,7 @@ import wx
 
 from gooey.gui.lang.i18n import _
 from gooey.gui.util.quoting import quote
-from gui.widgets.components import RadioGroup
+from gooey.gui.widgets.components import RadioGroup
 
 ArgumentGroup = namedtuple('ArgumentGroup',
                            'name command required_args optional_args')
