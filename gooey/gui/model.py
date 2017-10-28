@@ -266,7 +266,6 @@ class MyModel(object):
             position_args.insert(0, "--")
         cmd_string = ' '.join(
             list(filter(None, chain(required_args, optional_args, position_args))))
-        print(cmd_string)
         if self.layout_type == 'column':
             cmd_string = u'{} {}'.format(
                 self.argument_groups[self.active_group].command, cmd_string)

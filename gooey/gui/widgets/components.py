@@ -163,6 +163,9 @@ class CheckBox(BaseGuiComponent):
   def set_value(self, val):
     self.widget.SetValue(val)
 
+  def hide_checkbox(self):
+      self.widget.Hide()
+
   def disable(self):
       self.widget.Disable()
 
@@ -259,6 +262,8 @@ class RadioGroup(object):
     self.widgets = [w(self.panel) for w in self.widgets]
     for widget in self.widgets:
         widget.disable()
+        if isinstance(widget, CheckBox):
+            widget.hide_checkbox()
 
     self.radio_buttons = [wx.RadioButton(self.panel, -1) for _ in self.widgets]
 
@@ -286,15 +291,20 @@ class RadioGroup(object):
   def handle_selection(self, event):
     for button in self.radio_buttons:
         self.mapping[button].disable()
+
     if event.EventObject.Id == getattr(self.selected_button, 'Id', None):
       # if it is already selected, manually deselect it
       self.mapping[self.selected_button].disable()
       self.selected_button.SetValue(False)
       self.selected_button = None
+      if isinstance(self.mapping[self.selected_button], CheckBox):
+          self.mapping[self.selected_button].set_value(False)
     else:
       event.Skip()
       self.selected_button = event.EventObject
       self.mapping[self.selected_button].enable()
+      if isinstance(self.mapping[self.selected_button], CheckBox):
+          self.mapping[self.selected_button].set_value(True)
 
   def onResize(self, evt):
     msg = self.help_msgs[0]

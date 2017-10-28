@@ -8,7 +8,7 @@ Managed the internal layout for configuration options
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
-from gui.widgets.components import RadioGroup
+from gooey.gui.widgets.components import RadioGroup
 
 try:
     from itertools import zip_longest
