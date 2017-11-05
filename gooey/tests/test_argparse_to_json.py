@@ -144,7 +144,7 @@ def test_empty_mutex_group():
 
 def test_as_json_invalid_widget():
   with pytest.raises(UnknownWidgetType):
-    as_json(None, 'InvalidWidget', None)
+    action_to_json(None, 'InvalidWidget', None)
 
 
 def get_action(parser, dest):

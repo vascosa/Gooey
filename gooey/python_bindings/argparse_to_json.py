@@ -49,12 +49,12 @@ def convert(parser):
         'widgets': OrderedDict(
             (choose_name(name, sub_parser), {
                 'command': name,
-                'contents': process(sub_parser, getattr(sub_parser, 'widgets', {}))
+                'contents': process(sub_parser,
+                                    getattr(sub_parser, 'widgets', {}),
+                                    getattr(sub_parser, 'options', {}))
             }) for name, sub_parser in iter_parsers(parser))
     }
     pprint.pprint(x)
-    import sys
-    sys.exit(0)
     return x
 
 def assert_subparser_constraints(parser):
@@ -64,11 +64,14 @@ def assert_subparser_constraints(parser):
                 "Gooey doesn't currently support top level required arguments "
                 "when subparsers are present.")
 
+
 def iter_parsers(parser):
+    ''' Iterate over name, parser pairs '''
     try:
         return get_subparser(parser._actions).choices.items()
     except:
         return iter([('primary', parser)])
+
 
 def extract_groups(action_group):
     '''
@@ -115,36 +118,41 @@ def reapply_mutex_groups(mutex_groups, action_groups):
             for group in action_groups]
 
 
-def process(parser, widget_dict):
+def process(parser, widget_dict, options):
     mutex_groups = parser._mutually_exclusive_groups
     raw_action_groups = [extract_groups(group) for group in parser._action_groups]
     corrected_action_groups = reapply_mutex_groups(mutex_groups, raw_action_groups)
 
-    return categorize2(corrected_action_groups, widget_dict)
+    return categorize2(corrected_action_groups, widget_dict, options)
 
 
-def categorize2(groups, widget_dict):
+def categorize2(groups, widget_dict, options):
     return [{
         'name': group['name'],
-        'items': list(categorize(group['items'], widget_dict)),
-        'groups': categorize2(group['groups'], widget_dict),
+        'items': list(categorize(group['items'], widget_dict, options)),
+        'groups': categorize2(group['groups'], widget_dict, options),
         'description': group['description']
     } for group in groups]
 
 
-def categorize(actions, widget_dict, required=False):
-    _get_widget = partial(get_widget, widgets=widget_dict)
+def categorize(actions, widget_dict, options):
+    _get_widget = partial(get_widget, widget_dict)
     for action in actions:
+
         if is_mutex(action):
-            build_radio_group(action, widget_dict)
+            build_radio_group(action, widget_dict, options)
+
         elif is_standard(action):
-            yield as_json(action, _get_widget(action) or 'TextField', required)
+            return action_to_json(action, _get_widget(action, 'TextField'), options)
+
         elif is_choice(action):
-            yield as_json(action, _get_widget(action) or 'Dropdown', required)
+            yield action_to_json(action, _get_widget(action, 'Dropdown'), options)
+
         elif is_flag(action):
-            yield as_json(action, _get_widget(action) or 'CheckBox', required)
+            yield action_to_json(action, _get_widget(action, 'CheckBox'), options)
+
         elif is_counter(action):
-            _json = as_json(action, _get_widget(action) or 'Counter', required)
+            _json = action_to_json(action, _get_widget(action, 'Counter'), options)
             # pre-fill the 'counter' dropdown
             _json['data']['choices'] = list(map(str, range(1, 11)))
             yield _json
@@ -152,10 +160,10 @@ def categorize(actions, widget_dict, required=False):
             raise UnknownWidgetType(action)
 
 
-def get_widget(action, widgets):
+def get_widget(widgets, action, default):
     supplied_widget = widgets.get(action.dest, None)
     type_arg_widget = 'FileChooser' if action.type == argparse.FileType else None
-    return supplied_widget or type_arg_widget or None
+    return supplied_widget or type_arg_widget or default
 
 
 def is_required(action):
@@ -237,39 +245,38 @@ def choose_name(name, subparser):
     return name if is_default_progname(name, subparser) else subparser.prog
 
 
-def build_radio_group(mutex_group, widget_group):
+def build_radio_group(mutex_group, widget_group, options):
   return {
     'type': 'RadioGroup',
     'group_name': 'Choose Option',
     'required': mutex_group.required,
     'data': {
       'commands': [action.option_strings for action in mutex_group._group_actions],
-      'widgets': [categorize(action, widget_group)
+      'widgets': [categorize(action, widget_group, options)
                   for action in mutex_group._group_actions]
     }
   }
 
 
-
-def as_json(action, widget, required):
-    if widget not in VALID_WIDGETS:
-        raise UnknownWidgetType('Widget Type {0} is unrecognized'.format(widget))
-
+def action_to_json(action, widget, options):
     return {
         'type': widget,
-        'required': required,
+        'required': action.required,
         'data': {
             'display_name': action.metavar or action.dest,
             'help': action.help,
+            'required': action.required,
             'nargs': action.nargs or '',
             'commands': action.option_strings,
             'choices': action.choices or [],
-            'default': clean_default(widget, action.default)
-        }
+            'default': clean_default(action.default),
+            'dest': action.dest,
+        },
+        'options': options.get(action.dest, {})
     }
 
 
-def clean_default(widget_type, default):
+def clean_default(default):
     '''
     Attemps to safely coalesce the default value down to
     a valid JSON type.
@@ -278,8 +285,4 @@ def clean_default(widget_type, default):
     function references supplied as arguments to the
     `default` parameter in Argparse cause errors in Gooey.
     '''
-    if widget_type != 'CheckBox':
-        return default.__name__ if callable(default) else default
-    # checkboxes must be handled differently, as they
-    # must be forced down to a boolean value
-    return default if isinstance(default, bool) else False
+    return default.__name__ if callable(default) else default

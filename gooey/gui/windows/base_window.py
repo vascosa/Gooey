@@ -22,7 +22,7 @@ class BaseWindow(wx.Frame):
   Primary Frame under which all sub-Panels are organized.
   '''
 
-  def __init__(self, layout_type):
+  def __init__(self, layout_type, build_spec):
     wx.Frame.__init__(self, parent=None, id=-1)
 
     self.SetDoubleBuffered(True)
