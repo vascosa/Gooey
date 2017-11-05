@@ -27,6 +27,7 @@ def create_from_parser(parser, source_path, **kwargs):
     'num_optional_cols':    kwargs.get('optional_cols', 3),
     'manual_start':         False,
     'layout_type':          'flat',
+    # TODO: arbitrary fonts?
     'monospace_display':    kwargs.get('monospace_display', False),
     'image_dir':            kwargs.get('image_dir'),
     'language_dir':         kwargs.get('language_dir'),
@@ -34,7 +35,12 @@ def create_from_parser(parser, source_path, **kwargs):
     'progress_expr':        kwargs.get('progress_expr'),
     'disable_progress_bar_animation': kwargs.get('disable_progress_bar_animation'),
     'disable_stop_button':  kwargs.get('disable_stop_button'),
-    'group_by_type':        kwargs.get('group_by_type', True)
+    'group_by_type':        kwargs.get('group_by_type', True),
+    'body_bg_color':        kwargs.get('body_bg_color', '#f0f0f0'),
+    'header_bg_color':      kwargs.get('header_bg_color', '#ffffff'),
+    'footer_bg_color':      kwargs.get('footer_bg_color', '#f0f0f0'),
+    'terminal_bg_color':    kwargs.get('terminal_bg_color', '#ffffff'),
+    'terminal_font_color':  kwargs.get('terminal_font_color', '#000000'),
   }
 
   if not auto_start:

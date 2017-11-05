@@ -1,0 +1,29 @@
+from functools import reduce
+from copy import deepcopy
+
+
+def getin(m, path, default=None):
+    """ returns the value in a nested dict """
+    return reduce(lambda acc, val: acc.get(val, {}), path, m) or default
+
+
+def assoc(m, key, val):
+    """ Copy-on-write associates a value in a dict """
+    cpy = deepcopy(m)
+    cpy[key] = val
+    return cpy
+
+
+def associn(m, path, value):
+    """ Copy-on-write associates a value in a nested dict """
+    def assoc_recursively(m, path, value):
+        if not path:
+            return value
+        p = path[0]
+        return assoc(m, p, assoc_recursively(m.get(p,{}), path[1:], value))
+    return assoc_recursively(m, path, value)
+
+
+def merge(*maps):
+    copies = map(deepcopy, maps)
+    return reduce(lambda acc, val: acc.update(val) or acc, copies)
