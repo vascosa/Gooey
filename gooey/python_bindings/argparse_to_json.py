@@ -14,6 +14,9 @@ from argparse import (
     _SubParsersAction)
 from collections import OrderedDict
 from functools import partial
+from uuid import uuid4
+
+from util.functional import merge
 
 VALID_WIDGETS = (
     'FileChooser',
@@ -39,6 +42,14 @@ class UnknownWidgetType(Exception):
 
 class UnsupportedConfiguration(Exception):
     pass
+
+
+
+group_defaults = {
+    'columns': 2,
+    'padding': 10,
+    'show_border': True,
+}
 
 
 def convert(parser):
@@ -83,7 +94,10 @@ def extract_groups(action_group):
         'description': '',
         'items': [action for action in action_group._group_actions
                   if not is_help_message(action)],
-        'groups': [extract_groups(group) for group in action_group._action_groups]
+        'groups': [extract_groups(group)
+                   for group in action_group._action_groups],
+        'options': merge(group_defaults,
+                               getattr(action_group, 'gooey_options', {}))
     }
 
 
@@ -120,7 +134,8 @@ def reapply_mutex_groups(mutex_groups, action_groups):
 
 def process(parser, widget_dict, options):
     mutex_groups = parser._mutually_exclusive_groups
-    raw_action_groups = [extract_groups(group) for group in parser._action_groups]
+    raw_action_groups = [extract_groups(group) for group in parser._action_groups
+                         if group._group_actions]
     corrected_action_groups = reapply_mutex_groups(mutex_groups, raw_action_groups)
 
     return categorize2(corrected_action_groups, widget_dict, options)
@@ -131,7 +146,8 @@ def categorize2(groups, widget_dict, options):
         'name': group['name'],
         'items': list(categorize(group['items'], widget_dict, options)),
         'groups': categorize2(group['groups'], widget_dict, options),
-        'description': group['description']
+        'description': group['description'],
+        'options': group['options']
     } for group in groups]
 
 
@@ -143,7 +159,7 @@ def categorize(actions, widget_dict, options):
             build_radio_group(action, widget_dict, options)
 
         elif is_standard(action):
-            return action_to_json(action, _get_widget(action, 'TextField'), options)
+            yield action_to_json(action, _get_widget(action, 'TextField'), options)
 
         elif is_choice(action):
             yield action_to_json(action, _get_widget(action, 'Dropdown'), options)
@@ -260,6 +276,7 @@ def build_radio_group(mutex_group, widget_group, options):
 
 def action_to_json(action, widget, options):
     return {
+        'id': str(uuid4()),
         'type': widget,
         'required': action.required,
         'data': {
@@ -272,7 +289,7 @@ def action_to_json(action, widget, options):
             'default': clean_default(action.default),
             'dest': action.dest,
         },
-        'options': options.get(action.dest, {})
+        'options': options.get(action.dest) or {}
     }
 
 

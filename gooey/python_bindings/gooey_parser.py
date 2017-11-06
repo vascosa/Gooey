@@ -27,7 +27,9 @@ class GooeyArgumentGroup(_ArgumentGroup):
         self.options[self.parser._actions[-1].dest] = options
 
     def add_argument_group(self, *args, **kwargs):
+        options = kwargs.pop('gooey_options', {})
         group = GooeyArgumentGroup(self.parser, self.widgets, self.options, *args, **kwargs)
+        group.gooey_options = options
         self._action_groups.append(group)
         return group
 
@@ -85,12 +87,16 @@ class GooeyParser(object):
         self.options[self.parser._actions[-1].dest] = options
 
     def add_mutually_exclusive_group(self, *args, **kwargs):
+        options = kwargs.pop('gooey_options', {})
         group = GooeyMutuallyExclusiveGroup(self.parser, self.widgets, self.options, *args, **kwargs)
+        group.gooey_options = options
         self.parser._mutually_exclusive_groups.append(group)
         return group
 
     def add_argument_group(self, *args, **kwargs):
+        options = kwargs.pop('gooey_options', {})
         group = GooeyArgumentGroup(self.parser, self.widgets, self.options, *args, **kwargs)
+        group.gooey_options = options
         self.parser._action_groups.append(group)
         return group
 

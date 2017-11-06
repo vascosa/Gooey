@@ -1,5 +1,8 @@
 import wx
-from rx.subjects import Subject
+# from rx.subjects import Subject
+
+from gui import formatters
+from gui.util import wx_util
 
 
 class BaseWidget(wx.Panel):
@@ -39,18 +42,24 @@ class TextContainer(BaseWidget):
         self._id = widgetInfo['id']
         self._meta = widgetInfo['data']
         self.label = wx.StaticText(self, label=widgetInfo['data']['display_name'])
-        self.help_text = wx.StaticText(self, label=widgetInfo['data']['help'])
+        self.help_text = wx.StaticText(self, label=widgetInfo['data']['help'] or '')
         self.widget = self.getWidget(self)
         self.layout = self.arrange(*args, **kwargs)
         self.SetSizer(self.layout)
-        self.value = Subject()
+        # self.value = Subject()
         self.connectSignal()
 
     def arrange(self, *args, **kwargs):
+        wx_util.make_bold(self.label)
+        wx_util.dark_grey(self.help_text)
+        self.help_text.SetMinSize((0,-1))
+
         layout = wx.BoxSizer(wx.VERTICAL)
         layout.Add(self.label)
+        layout.AddSpacer(2)
         if self.help_text:
-            layout.Add(self.help_text)
+            layout.Add(self.help_text, 1, wx.EXPAND)
+            layout.AddSpacer(2)
         else:
             layout.AddStretchSpacer(1)
         layout.Add(self.getSublayout(), 0, wx.EXPAND)

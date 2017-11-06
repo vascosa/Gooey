@@ -5,12 +5,14 @@ from gooey.gui.components.widgets.textfield import TextField
 from gooey.gui.components.widgets.textarea import Textarea
 from gooey.gui.components.widgets.password import PasswordField
 from gooey.gui.components.widgets.choosers import FileChooser, FileSaver, DirChooser, DateChooser
+from gooey.gui.components.widgets.dropdown import Dropdown
+from gooey.gui.components.widgets.listbox import Listbox
 
 
 class CCC(wx.Frame):
     def __init__(self, *args, **kwargs):
         super(CCC, self).__init__(*args, **kwargs)
-        x = {'data':{'display_name': 'foo', 'help': 'bar', 'commands': ['-t']}, 'id': 1, 'options': {}}
+        x = {'data':{'choices':['one', 'tw'], 'display_name': 'foo', 'help': 'bar', 'commands': ['-t']}, 'id': 1, 'options': {}}
 
         a = TextField(self, x)
         c = Textarea(self, x)
@@ -19,6 +21,8 @@ class CCC(wx.Frame):
         e = FileChooser(self,x)
         f = FileSaver(self, x)
         g = DateChooser(self, x)
+        h = Dropdown(self, x)
+        i = Listbox(self, x)
 
         s = wx.BoxSizer(wx.VERTICAL)
         s.Add(a, 0, wx.EXPAND)
@@ -28,9 +32,11 @@ class CCC(wx.Frame):
         s.Add(e, 0, wx.EXPAND)
         s.Add(f, 0, wx.EXPAND)
         s.Add(g, 0, wx.EXPAND)
+        s.Add(h, 0, wx.EXPAND)
+        s.Add(i, 0, wx.EXPAND)
 
         self.SetSizer(s)
-        # wx.lib.inspection.InspectionTool().Show()
+
 
 
 

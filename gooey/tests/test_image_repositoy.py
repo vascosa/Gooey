@@ -22,7 +22,7 @@ def test_patch_returns_error_on_invalid_dir():
   from gooey.gui import image_repository
 
   with pytest.raises(IOError) as kaboom:
-    image_repository.patch_images('foo/bar/not/a/path')
+    image_repository.patchImagePaths('foo/bar/not/a/path')
 
   # our error
   assert ' user supplied' in str(kaboom.value)
@@ -40,7 +40,7 @@ def test_module_scope_is_updated_on_patch(expected_attrs):
     make_user_files(*testing_icons)
     old_icon = image_repository.config_icon
     # load up our new icon(s)
-    image_repository.patch_images(tempfile.tempdir)
+    image_repository.patchImagePaths(tempfile.tempdir)
     new_icon = image_repository.config_icon
     assert old_icon != new_icon
   finally:

@@ -3,20 +3,22 @@ Main runner entry point for Gooey.
 '''
 
 import wx
-
+import wx.lib.inspection
 from gooey.gui.lang import i18n
 from gooey.gui.controller import Controller
 
 from gooey.gui import image_repository
 from gooey.gui.containers.application import GooeyApplication
+from util.functional import merge
 
 
 def run(build_spec):
   app = wx.App(False)
 
   i18n.load(build_spec['language_dir'], build_spec['language'])
-  image_repository.patch_images(build_spec['image_dir'])
-  gapp = GooeyApplication(build_spec)
+  imagesPaths = image_repository.loadImages(build_spec['image_dir'])
+  gapp = GooeyApplication(merge(build_spec, imagesPaths))
+  wx.lib.inspection.InspectionTool().Show()
   gapp.Show()
   app.MainLoop()
 

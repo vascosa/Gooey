@@ -1,7 +1,7 @@
 import wx
 
 from gooey.gui.util.filedrop import FileDrop
-from gooey.gui.util.functional import merge
+from gooey.util.functional import merge
 
 
 class TextInput(wx.Panel):

@@ -6,7 +6,7 @@ def is_frozen():
     return getattr(sys, 'frozen', False)
 
 
-def get_resource_path(*args):
+def getResourcePath(*args):
     if is_frozen():
         # MEIPASS explanation:
         # https://pythonhosted.org/PyInstaller/#run-time-operation

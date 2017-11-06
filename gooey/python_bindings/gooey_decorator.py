@@ -12,7 +12,7 @@ import sys
 from argparse import ArgumentParser
 
 from gooey.gui import application
-from gooey.gui.util.freeze import get_resource_path
+from gooey.gui.util.freeze import getResourcePath
 from . import config_generator
 
 IGNORE_COMMAND = '--ignore-gooey'
@@ -29,14 +29,15 @@ def Gooey(f=None,
           optional_cols=2,
           dump_build_config=False,
           load_build_config=None,
-          monospace_display=False, # TODO: add this to the docs
+          monospace_display=False,  # TODO: add this to the docs
           image_dir='default',
-          language_dir=get_resource_path('languages'),
-          progress_regex=None, # TODO: add this to the docs
-          progress_expr=None, # TODO: add this to the docs
+          language_dir=getResourcePath('languages'),
+          progress_regex=None,  # TODO: add this to the docs
+          progress_expr=None,  # TODO: add this to the docs
           disable_progress_bar_animation=False,
           disable_stop_button=False,
-          group_by_type=True): # TODO: add this to the docs
+          group_by_type=True,
+          header_height=80): # TODO: add this to the docs
   '''
   Decorator for client code's main function.
   Serializes argparse data to JSON for use with the Gooey front end

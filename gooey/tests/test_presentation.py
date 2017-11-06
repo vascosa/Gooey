@@ -7,7 +7,7 @@ from mock import MagicMock
 from gooey.gui.lang import i18n
 from gooey.gui.model import MyModel
 from gooey.gui.presenter import Presenter
-from gooey.gui.util.freeze import get_resource_path
+from gooey.gui.util.freeze import getResourcePath
 from gooey.python_bindings import config_generator
 
 
@@ -22,7 +22,7 @@ def build_spec_subparser(subparser):
 @pytest.fixture
 def presentation_model(build_spec):
   app = wx.App(False)
-  i18n.load(get_resource_path('languages'), build_spec['language'])
+  i18n.load(getResourcePath('languages'), build_spec['language'])
   model = MyModel(build_spec)
   view = MagicMock()
   presentation = Presenter(view, model)
@@ -31,7 +31,7 @@ def presentation_model(build_spec):
 @pytest.fixture
 def subparser_presentation_model(build_spec_subparser):
   app = wx.App(False)
-  i18n.load(get_resource_path('languages'), 'english')
+  i18n.load(getResourcePath('languages'), 'english')
   model = MyModel(build_spec_subparser)
   view = MagicMock()
   presentation = Presenter(view, model)

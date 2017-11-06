@@ -2,7 +2,7 @@ import wx
 
 from gooey.gui.components.widgets.core.text_input import TextInput
 from gooey.gui.components.widgets.dialogs.calender_dialog import CalendarDlg
-from gooey.gui.util.functional import merge
+from gooey.util.functional import merge
 
 
 class Chooser(wx.Panel):
@@ -25,11 +25,11 @@ class Chooser(wx.Panel):
 
     def layout(self):
         layout = wx.BoxSizer(wx.HORIZONTAL)
-        layout.Add(self.widget, 1, wx.EXPAND)
+        layout.Add(self.widget, 1, wx.EXPAND | wx.TOP, 2)
         layout.Add(self.button, 0, wx.LEFT, 10)
 
         v = wx.BoxSizer(wx.VERTICAL)
-        v.Add(layout, 1, wx.EXPAND)
+        v.Add(layout, 1, wx.EXPAND, wx.TOP, 1)
         self.SetSizer(v)
 
 
