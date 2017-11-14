@@ -4,18 +4,17 @@ from util.functional import getin
 
 
 class ConfigPage(ScrolledPanel):
-    def __init__(self, parent, buildSpec, *args, **kwargs):
+    def __init__(self, parent, rawWidgets, *args, **kwargs):
         super(ConfigPage, self).__init__(parent, *args, **kwargs)
         self.SetupScrolling(scroll_x=False, scrollToTop=False)
-        self.buildSpec = buildSpec
+        self.rawWidgets = rawWidgets
         self.layoutComponent()
 
 
     def layoutComponent(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
-        for key, group in self.buildSpec['widgets'].items():
-            [self.makeGroup(sizer, item, 0, wx.EXPAND) for item in group['contents']]
-
+        for item in self.rawWidgets['contents']:
+            self.makeGroup(sizer, item, 0, wx.EXPAND)
         self.SetSizer(sizer)
 
     def makeGroup(self, thissizer, group, *args):

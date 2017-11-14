@@ -45,6 +45,7 @@ def create_from_parser(parser, source_path, **kwargs):
     'footer_bg_color':      kwargs.get('footer_bg_color', '#f0f0f0'),
     'terminal_bg_color':    kwargs.get('terminal_bg_color', '#ffffff'),
     'terminal_font_color':  kwargs.get('terminal_font_color', '#000000'),
+    'subparser_title':      kwargs.get('subparser_title', 'Actions'),
   }
 
   if not auto_start:
