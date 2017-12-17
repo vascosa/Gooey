@@ -76,6 +76,9 @@ class TextContainer(BaseWidget):
         layout.Add(self.widget, 1, wx.EXPAND)
         return layout
 
+    def getValue(self):
+        raise NotImplementedError
+
     def setValue(self, value):
         raise NotImplementedError
 

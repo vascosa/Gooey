@@ -15,11 +15,11 @@ PAD_SIZE = 10
 
 
 class FrameHeader(wx.Panel):
-    def __init__(self, parent, build_spec, **kwargs):
+    def __init__(self, parent, buildSpec, **kwargs):
         wx.Panel.__init__(self, parent, **kwargs)
         self.SetDoubleBuffered(True)
 
-        self.build_spec = build_spec
+        self.buildSpec = buildSpec
 
         self._header = None
         self._subheader = None
@@ -43,15 +43,15 @@ class FrameHeader(wx.Panel):
 
     def layoutComponent(self):
 
-        self.SetBackgroundColour(self.build_spec['header_bg_color'])
-        self.SetSize((30, self.build_spec['header_height']))
-        self.SetMinSize((120, self.build_spec['header_height']))
+        self.SetBackgroundColour(self.buildSpec['header_bg_color'])
+        self.SetSize((30, self.buildSpec['header_height']))
+        self.SetMinSize((120, self.buildSpec['header_height']))
 
-        self._header = wx_util.h1(self, '')
-        self._subheader = wx.StaticText(self, label='')
+        self._header = wx_util.h1(self, label=self.buildSpec['program_name'])
+        self._subheader = wx.StaticText(self, label=self.buildSpec['program_description'])
 
-        images = self.build_spec['images']
-        targetHeight = self.build_spec['header_height'] - 10
+        images = self.buildSpec['images']
+        targetHeight = self.buildSpec['header_height'] - 10
         self.settings_img = self._load_image(images['configIcon'], targetHeight)
         self.running_img = self._load_image(images['runningIcon'], targetHeight)
         self.check_mark = self._load_image(images['successIcon'], targetHeight)

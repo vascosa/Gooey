@@ -1,6 +1,7 @@
 """
 Converts argparse parser actions into json "Build Specs"
 """
+import functools
 import pprint
 import argparse
 import os
@@ -16,7 +17,7 @@ from collections import OrderedDict
 from functools import partial
 from uuid import uuid4
 
-from util.functional import merge
+from util.functional import merge, associn, getin
 
 VALID_WIDGETS = (
     'FileChooser',
@@ -48,13 +49,12 @@ class UnsupportedConfiguration(Exception):
 group_defaults = {
     'columns': 2,
     'padding': 10,
-    'show_border': True,
+    'show_border': False,
 }
 
 
-def convert(parser):
+def convert(parser, **kwargs):
     assert_subparser_constraints(parser)
-
     x = {
         'layout': 'standard',
         'widgets': OrderedDict(
@@ -66,7 +66,19 @@ def convert(parser):
             }) for name, sub_parser in iter_parsers(parser))
     }
     pprint.pprint(x)
+    if kwargs.get('use_legacy_titles'):
+        return apply_default_rewrites(x)
     return x
+
+
+def process(parser, widget_dict, options):
+    mutex_groups = parser._mutually_exclusive_groups
+    raw_action_groups = [extract_groups(group) for group in parser._action_groups
+                         if group._group_actions]
+    corrected_action_groups = reapply_mutex_groups(mutex_groups, raw_action_groups)
+
+    return categorize2(corrected_action_groups, widget_dict, options)
+
 
 def assert_subparser_constraints(parser):
     if has_subparsers(parser._actions):
@@ -91,7 +103,7 @@ def extract_groups(action_group):
     '''
     return {
         'name': action_group.title,
-        'description': '',
+        'description': action_group.description,
         'items': [action for action in action_group._group_actions
                   if not is_help_message(action)],
         'groups': [extract_groups(group)
@@ -99,6 +111,20 @@ def extract_groups(action_group):
         'options': merge(group_defaults,
                                getattr(action_group, 'gooey_options', {}))
     }
+
+
+def apply_default_rewrites(spec):
+    top_level_subgroups = list(spec['widgets'].keys())
+
+    for subgroup in top_level_subgroups:
+        path = ['widgets', subgroup, 'contents']
+        contents = getin(spec, path)
+        for group in contents:
+            if group['name'] == 'positional arguments':
+                group['name'] = 'Required Arguments'
+            if group['name'] == 'optional arguments':
+                group['name'] = 'Optional Arguments'
+    return spec
 
 
 def contains_actions(a, b):
@@ -132,15 +158,6 @@ def reapply_mutex_groups(mutex_groups, action_groups):
             for group in action_groups]
 
 
-def process(parser, widget_dict, options):
-    mutex_groups = parser._mutually_exclusive_groups
-    raw_action_groups = [extract_groups(group) for group in parser._action_groups
-                         if group._group_actions]
-    corrected_action_groups = reapply_mutex_groups(mutex_groups, raw_action_groups)
-
-    return categorize2(corrected_action_groups, widget_dict, options)
-
-
 def categorize2(groups, widget_dict, options):
     return [{
         'name': group['name'],
@@ -156,7 +173,7 @@ def categorize(actions, widget_dict, options):
     for action in actions:
 
         if is_mutex(action):
-            build_radio_group(action, widget_dict, options)
+            yield build_radio_group(action, widget_dict, options)
 
         elif is_standard(action):
             yield action_to_json(action, _get_widget(action, 'TextField'), options)
@@ -266,10 +283,10 @@ def build_radio_group(mutex_group, widget_group, options):
     'type': 'RadioGroup',
     'group_name': 'Choose Option',
     'required': mutex_group.required,
+    'options': getattr(mutex_group, 'gooey_options', {}),
     'data': {
       'commands': [action.option_strings for action in mutex_group._group_actions],
-      'widgets': [categorize(action, widget_group, options)
-                  for action in mutex_group._group_actions]
+      'widgets': list(categorize(mutex_group._group_actions, widget_group, options))
     }
   }
 

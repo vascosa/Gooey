@@ -43,18 +43,12 @@ class Footer(wx.Panel):
             self.Bind(wx.EVT_BUTTON, self.dispatch_click, button)
 
     def _init_components(self):
-        self.cancel_button = self.button(i18n._('cancel'), wx.ID_CANCEL,
-                                         event_id=int(events.WINDOW_CANCEL))
-        self.stop_button = self.button(i18n._('stop'), wx.ID_OK,
-                                       event_id=int(events.WINDOW_STOP))
-        self.start_button = self.button(i18n._('start'), wx.ID_OK,
-                                        event_id=int(events.WINDOW_START))
-        self.close_button = self.button(i18n._("close"), wx.ID_OK,
-                                        event_id=int(events.WINDOW_CLOSE))
-        self.restart_button = self.button(i18n._('restart'), wx.ID_OK,
-                                          event_id=int(events.WINDOW_RESTART))
-        self.edit_button = self.button(i18n._('edit'), wx.ID_OK,
-                                       event_id=int(events.WINDOW_EDIT))
+        self.cancel_button = self.button(i18n._('cancel'), wx.ID_CANCEL, event_id=int(events.WINDOW_CANCEL))
+        self.stop_button = self.button(i18n._('stop'), wx.ID_OK, event_id=int(events.WINDOW_STOP))
+        self.start_button = self.button(i18n._('start'), wx.ID_OK, event_id=int(events.WINDOW_START))
+        self.close_button = self.button(i18n._("close"), wx.ID_OK, event_id=int(events.WINDOW_CLOSE))
+        self.restart_button = self.button(i18n._('restart'), wx.ID_OK, event_id=int(events.WINDOW_RESTART))
+        self.edit_button = self.button(i18n._('edit'), wx.ID_OK, event_id=int(events.WINDOW_EDIT))
 
         self.progress_bar = wx.Gauge(self, range=100)
 

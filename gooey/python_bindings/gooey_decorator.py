@@ -17,6 +17,7 @@ from . import config_generator
 
 IGNORE_COMMAND = '--ignore-gooey'
 
+# TODO: kwargs all the things
 def Gooey(f=None,
           advanced=True,
           language='english',
@@ -25,6 +26,7 @@ def Gooey(f=None,
           program_name=None,
           program_description=None,
           default_size=(610, 530),
+          use_legacy_titles=True,
           required_cols=2,
           optional_cols=2,
           dump_build_config=False,
@@ -37,7 +39,9 @@ def Gooey(f=None,
           disable_progress_bar_animation=False,
           disable_stop_button=False,
           group_by_type=True,
-          header_height=80): # TODO: add this to the docs
+          header_height=80,
+          navigation='SIDEBAR', # TODO: add this to the docs
+          tabbed_groups=False): # TODO: add this to the docs
   '''
   Decorator for client code's main function.
   Serializes argparse data to JSON for use with the Gooey front end
@@ -58,7 +62,11 @@ def Gooey(f=None,
           sys.exit(1)
 
       if not build_spec:
-        build_spec = config_generator.create_from_parser(self, source_path, payload_name=payload.__name__, **params)
+        build_spec = config_generator.create_from_parser(
+          self,
+          source_path,
+          payload_name=payload.__name__,
+          **params)
 
       if dump_build_config:
         config_path = os.path.join(os.getcwd(), 'gooey_config.json')

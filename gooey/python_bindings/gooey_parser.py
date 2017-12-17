@@ -9,7 +9,8 @@ class GooeySubParser(_SubParsersAction):
         super(GooeySubParser, self).__init__(*args, **kwargs)
 
 
-# TODO: dedupe code
+# TODO: figure out how to correctly dispatch all of these
+#       so that the individual wrappers aren't needed
 class GooeyArgumentGroup(_ArgumentGroup):
     def __init__(self, parser, widgets, options, *args, **kwargs):
         self.parser = parser
@@ -33,13 +34,21 @@ class GooeyArgumentGroup(_ArgumentGroup):
         self._action_groups.append(group)
         return group
 
+    def add_mutually_exclusive_group(self, *args, **kwargs):
+        options = kwargs.pop('gooey_options', {})
+        container = self
+        group = GooeyMutuallyExclusiveGroup(container, self.parser, self.widgets, self.options, *args, **kwargs)
+        group.gooey_options = options
+        self.parser._mutually_exclusive_groups.append(group)
+        return group
+
 
 class GooeyMutuallyExclusiveGroup(_MutuallyExclusiveGroup):
-    def __init__(self, parser, widgets, options, *args, **kwargs):
+    def __init__(self, container, parser, widgets, options, *args, **kwargs):
         self.parser = parser
         self.widgets = widgets
         self.options = options
-        super(GooeyMutuallyExclusiveGroup, self).__init__(self.parser, *args, **kwargs)
+        super(GooeyMutuallyExclusiveGroup, self).__init__(container, *args, **kwargs)
 
     def add_argument(self, *args, **kwargs):
         widget = kwargs.pop('widget', None)
