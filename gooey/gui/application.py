@@ -9,7 +9,7 @@ from gooey.gui.controller import Controller
 
 from gooey.gui import image_repository
 from gooey.gui.containers.application import GooeyApplication
-from util.functional import merge
+from gooey.util.functional import merge
 
 
 def run(build_spec):
@@ -18,7 +18,7 @@ def run(build_spec):
   i18n.load(build_spec['language_dir'], build_spec['language'])
   imagesPaths = image_repository.loadImages(build_spec['image_dir'])
   gapp = GooeyApplication(merge(build_spec, imagesPaths))
-  wx.lib.inspection.InspectionTool().Show()
+  # wx.lib.inspection.InspectionTool().Show()
   gapp.Show()
   app.MainLoop()
 

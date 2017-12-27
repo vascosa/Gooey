@@ -1,6 +1,9 @@
 import wx
+
+from gooey.gui import formatters, events
 from gooey.gui.components.widgets.bases import TextContainer
-from gui.util import wx_util
+from gooey.gui.pubsub import pub
+from gooey.gui.util import wx_util
 
 
 class CheckBox(TextContainer):
@@ -10,6 +13,9 @@ class CheckBox(TextContainer):
     def arrange(self, *args, **kwargs):
         wx_util.make_bold(self.label)
         wx_util.dark_grey(self.help_text)
+        wx_util.withColor(self.error, self._options['error_color'])
+        self.error.Hide()
+
         self.help_text.SetMinSize((0,-1))
 
         layout = wx.BoxSizer(wx.VERTICAL)
@@ -26,6 +32,22 @@ class CheckBox(TextContainer):
             layout.AddStretchSpacer(1)
         # layout.Add(self.getSublayout(), 0, wx.EXPAND)
         return layout
+
+    def connectSignal(self):
+        self.widget.Bind(wx.EVT_CHECKBOX, self.dispatchChange)
+
+    def dispatchChange(self, event, **kwargs):
+        value = event.EventObject.GetValue()
+        pub.send_message(
+            events.USER_INPUT,
+            id=self._id,
+            cmd=self.formatOutput(self._meta, value),
+            rawValue=value
+        )
+
+    def formatOutput(self, metatdata, value):
+        return formatters.checkbox(metatdata, value)
+
 
     def hideInput(self):
         self.widget.Hide()

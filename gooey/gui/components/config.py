@@ -1,8 +1,8 @@
 import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
-from gui.util import wx_util
-from util.functional import getin
+from gooey.gui.util import wx_util
+from gooey.util.functional import getin
 
 
 class ConfigPage(ScrolledPanel):

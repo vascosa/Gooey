@@ -15,6 +15,8 @@ styles = {
 }
 
 
+
+
 def make_bold(statictext):
     pointsize = statictext.GetFont().GetPointSize()
     font = wx.Font(pointsize, *styles['bold'])
@@ -22,8 +24,12 @@ def make_bold(statictext):
 
 
 def dark_grey(statictext):
-    darkgray = (54, 54, 54)
-    statictext.SetForegroundColour(darkgray)
+    return withColor(statictext, (54, 54, 54))
+
+
+def withColor(statictext, hex):
+    statictext.SetForegroundColour(hex)
+    return statictext
 
 
 def h0(parent, label):

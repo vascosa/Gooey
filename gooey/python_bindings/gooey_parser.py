@@ -97,7 +97,7 @@ class GooeyParser(object):
 
     def add_mutually_exclusive_group(self, *args, **kwargs):
         options = kwargs.pop('gooey_options', {})
-        group = GooeyMutuallyExclusiveGroup(self.parser, self.widgets, self.options, *args, **kwargs)
+        group = GooeyMutuallyExclusiveGroup(self, self.parser, self.widgets, self.options, *args, **kwargs)
         group.gooey_options = options
         self.parser._mutually_exclusive_groups.append(group)
         return group

@@ -1,8 +1,10 @@
 import wx
 # from rx.subjects import Subject
 
-from gui import formatters
-from gui.util import wx_util
+from gooey.gui import formatters, events
+from gooey.gui.pubsub import pub
+from gooey.gui.util import wx_util
+from gooey.util.functional import getin
 
 
 class BaseWidget(wx.Panel):
@@ -41,17 +43,22 @@ class TextContainer(BaseWidget):
 
         self._id = widgetInfo['id']
         self._meta = widgetInfo['data']
+        self._options = widgetInfo['options']
         self.label = wx.StaticText(self, label=widgetInfo['data']['display_name'])
         self.help_text = wx.StaticText(self, label=widgetInfo['data']['help'] or '')
+        self.error = wx.StaticText(self, label='asdf adsf asdf adsf asdf asdf ')
         self.widget = self.getWidget(self)
         self.layout = self.arrange(*args, **kwargs)
         self.SetSizer(self.layout)
+        # self.error.Hide()
         # self.value = Subject()
         self.connectSignal()
 
     def arrange(self, *args, **kwargs):
         wx_util.make_bold(self.label)
         wx_util.dark_grey(self.help_text)
+        wx_util.withColor(self.error, self._options['error_color'])
+
         self.help_text.SetMinSize((0,-1))
 
         layout = wx.BoxSizer(wx.VERTICAL)
@@ -63,6 +70,7 @@ class TextContainer(BaseWidget):
         else:
             layout.AddStretchSpacer(1)
         layout.Add(self.getSublayout(), 0, wx.EXPAND)
+        layout.Add(self.error, 1, wx.EXPAND)
         return layout
 
     def getWidget(self, *args, **options):
@@ -98,12 +106,14 @@ class BaseChooser(TextContainer):
     def setValue(self, value):
         self.widget.SetValue(value)
 
-    def dispatchChange(self, value, **kwargs):
-        self.value.on_next({
-            'id': self._id,
-            'cmd': self.formatOutput(self._meta, value),
-            'rawValue': value
-        })
+    def dispatchChange(self, event, **kwargs):
+        value = event.EventObject.GetValue()
+        pub.send_message(
+            events.USER_INPUT,
+            id=self._id,
+            cmd=self.formatOutput(self._meta, value),
+            rawValue=value
+        )
 
     def formatOutput(self, metatdata, value):
         return formatters.general(metatdata, value)

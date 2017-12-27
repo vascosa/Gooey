@@ -11,7 +11,7 @@ class PubSub(object):
     self.registry = defaultdict(list)
 
 
-  def subscribe(self, handler, event):
+  def subscribe(self, event, handler):
     self.registry[event].append(handler)
 
 

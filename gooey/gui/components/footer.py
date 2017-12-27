@@ -1,8 +1,3 @@
-'''
-Created on Dec 23, 2013
-
-@author: Chris
-'''
 
 import wx
 
@@ -32,7 +27,10 @@ class Footer(wx.Panel):
         self.close_button = None
         self.stop_button = None
         self.restart_button = None
-        self.buttons = None
+        self.edit_button = None
+        self.buttons = [self.cancel_button, self.start_button,
+                        self.stop_button, self.close_button,
+                        self.restart_button, self.edit_button]
 
         self.layouts = {}
 
@@ -43,8 +41,8 @@ class Footer(wx.Panel):
             self.Bind(wx.EVT_BUTTON, self.dispatch_click, button)
 
     def _init_components(self):
-        self.cancel_button = self.button(i18n._('cancel'), wx.ID_CANCEL, event_id=int(events.WINDOW_CANCEL))
-        self.stop_button = self.button(i18n._('stop'), wx.ID_OK, event_id=int(events.WINDOW_STOP))
+        self.cancel_button = self.button(i18n._('cancel'), wx.ID_CANCEL, event_id=events.WINDOW_CANCEL)
+        self.stop_button = self.button(i18n._('stop'), wx.ID_OK, event_id=events.WINDOW_STOP)
         self.start_button = self.button(i18n._('start'), wx.ID_OK, event_id=int(events.WINDOW_START))
         self.close_button = self.button(i18n._("close"), wx.ID_OK, event_id=int(events.WINDOW_CLOSE))
         self.restart_button = self.button(i18n._('restart'), wx.ID_OK, event_id=int(events.WINDOW_RESTART))
@@ -52,9 +50,6 @@ class Footer(wx.Panel):
 
         self.progress_bar = wx.Gauge(self, range=100)
 
-        self.buttons = [self.cancel_button, self.start_button,
-                        self.stop_button, self.close_button,
-                        self.restart_button, self.edit_button]
 
     def _do_layout(self):
         self.stop_button.Hide()
@@ -90,12 +85,15 @@ class Footer(wx.Panel):
             parent=self,
             id=event_id,
             size=(90, 24),
-            label=label,
+            label=i18n._(label),
             style=style)
 
+
     def dispatch_click(self, event):
-        pub.send_message(str(event.GetId()))
+        # print('hai dispatch', event.GetId())
+        pub.send_message(event.GetId())
         event.Skip()
+
 
     def hide_all_buttons(self):
         for button in self.buttons:

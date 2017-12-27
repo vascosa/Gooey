@@ -8,8 +8,8 @@ import wx
 
 from gooey.gui import imageutil, image_repository
 from gooey.gui.util import wx_util
-from gui.three_to_four import bitmapFromImage
-from util.functional import getin
+from gooey.gui.three_to_four import bitmapFromImage
+from gooey.util.functional import getin
 
 PAD_SIZE = 10
 

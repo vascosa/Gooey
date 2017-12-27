@@ -17,7 +17,7 @@ from collections import OrderedDict
 from functools import partial
 from uuid import uuid4
 
-from util.functional import merge, associn, getin
+from gooey.util.functional import merge, associn, getin
 
 VALID_WIDGETS = (
     'FileChooser',
@@ -49,7 +49,19 @@ class UnsupportedConfiguration(Exception):
 group_defaults = {
     'columns': 2,
     'padding': 10,
-    'show_border': False,
+    'show_border': False
+}
+
+item_default = {
+    'error_color': '#ea7878',
+    'validator': {
+        'type': 'local',
+        'test': 'lambda x: True',
+        'message': ''
+    },
+    'external_validator': {
+        'cmd': '',
+    }
 }
 
 
@@ -306,7 +318,7 @@ def action_to_json(action, widget, options):
             'default': clean_default(action.default),
             'dest': action.dest,
         },
-        'options': options.get(action.dest) or {}
+        'options': merge(options.get(action.dest) or {}, item_default)
     }
 
 

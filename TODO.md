@@ -1,6 +1,8 @@
 TODO
 ====
 
+- validator should be able to call outside itself -- either to a separate 
+  cmdline util, or a subset of the host prog
 - Update parser to catch all argparse import styles
 - Investigate Docopt
 - better graphics

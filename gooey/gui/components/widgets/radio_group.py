@@ -1,8 +1,8 @@
 import wx
 from gooey.gui.components.widgets.bases import BaseWidget
-from gui.util import wx_util
+from gooey.gui.util import wx_util
 from gooey.gui.components.widgets import CheckBox
-from util.functional import getin
+from gooey.util.functional import getin
 
 
 class RadioGroup(BaseWidget):

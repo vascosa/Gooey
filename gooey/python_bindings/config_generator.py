@@ -25,6 +25,8 @@ def create_from_parser(parser, source_path, **kwargs):
     'default_size':         kwargs.get('default_size', (610, 530)),
     'auto_start':           kwargs.get('auto_start', False),
     'show_advanced':        kwargs.get('advanced', True),
+    'run_validators':       kwargs.get('run_validators', True),
+
 
     # Legacy/Backward compatibility interop
     'use_legacy_titles':    kwargs.get('use_legacy_titles', True),
@@ -58,6 +60,7 @@ def create_from_parser(parser, source_path, **kwargs):
     'sidebar_bg_color':     kwargs.get('sidebar_bg_color', '#f2f2f2'),
     'terminal_bg_color':    kwargs.get('terminal_bg_color', '#ffffff'),
     'terminal_font_color':  kwargs.get('terminal_font_color', '#000000'),
+    'error_color':          kwargs.get('error_color', '#ea7878')
   }
 
   if not auto_start:
