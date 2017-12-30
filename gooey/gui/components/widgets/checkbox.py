@@ -4,6 +4,7 @@ from gooey.gui import formatters, events
 from gooey.gui.components.widgets.bases import TextContainer
 from gooey.gui.pubsub import pub
 from gooey.gui.util import wx_util
+from gooey.util.functional import getin
 
 
 class CheckBox(TextContainer):
@@ -21,6 +22,7 @@ class CheckBox(TextContainer):
         layout = wx.BoxSizer(wx.VERTICAL)
         layout.Add(self.label)
         layout.AddSpacer(2)
+        layout.AddStretchSpacer(1)
         if self.help_text:
             hsizer = wx.BoxSizer(wx.HORIZONTAL)
             hsizer.Add(self.widget, 0)
@@ -30,20 +32,12 @@ class CheckBox(TextContainer):
         else:
             layout.Add(self.widget, 0, wx.EXPAND)
             layout.AddStretchSpacer(1)
-        # layout.Add(self.getSublayout(), 0, wx.EXPAND)
         return layout
 
-    def connectSignal(self):
-        self.widget.Bind(wx.EVT_CHECKBOX, self.dispatchChange)
 
-    def dispatchChange(self, event, **kwargs):
-        value = event.EventObject.GetValue()
-        pub.send_message(
-            events.USER_INPUT,
-            id=self._id,
-            cmd=self.formatOutput(self._meta, value),
-            rawValue=value
-        )
+    def getWidgetValue(self):
+        return self.widget.GetValue()
+
 
     def formatOutput(self, metatdata, value):
         return formatters.checkbox(metatdata, value)

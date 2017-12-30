@@ -59,6 +59,12 @@ def dropdown(metadata, value):
         return quote(value) if value else ''
 
 
+def listbox(meta, value):
+    if meta['commands'] and value:
+        return u'{} {}'.format(meta['commands'][0], ' '.join(map(quote, value)))
+    else:
+        return ' '.join(map(quote, value)) if value else ''
+
 
 def general(metadata, value):
     if metadata.get('commands') and value:

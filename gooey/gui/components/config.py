@@ -2,7 +2,7 @@ import wx
 from wx.lib.scrolledpanel import ScrolledPanel
 
 from gooey.gui.util import wx_util
-from gooey.util.functional import getin
+from gooey.util.functional import getin, flatmap, merge, compact, indexunique
 
 
 class ConfigPage(ScrolledPanel):
@@ -10,7 +10,44 @@ class ConfigPage(ScrolledPanel):
         super(ConfigPage, self).__init__(parent, *args, **kwargs)
         self.SetupScrolling(scroll_x=False, scrollToTop=False)
         self.rawWidgets = rawWidgets
+        self.reifiedWidgets = []
         self.layoutComponent()
+        self.widgetsMap = indexunique(lambda x: x._id, self.reifiedWidgets)
+
+
+    def getPositionalArgs(self):
+        return [widget.getValue()['cmd'] for widget in self.reifiedWidgets
+                if widget.info['cli_type'] == 'positional']
+
+    def getOptionalArgs(self):
+        return [widget.getValue()['cmd'] for widget in self.reifiedWidgets
+                if widget.info['cli_type'] != 'positional']
+
+
+    def isValid(self):
+        states = [widget.getValue() for widget in self.reifiedWidgets]
+        return not any(compact([state['error'] for state in states]))
+
+
+    def displayErrors(self):
+        states = [widget.getValue() for widget in self.reifiedWidgets]
+        errors = [state for state in states if state['error']]
+        for error in errors:
+            widget = self.widgetsMap[error['id']]
+            widget.setErrorString(error['error'])
+            widget.showErrorString(True)
+            while widget.GetParent():
+                widget.Layout()
+                widget = widget.GetParent()
+
+    def resetErrors(self):
+        for widget in self.reifiedWidgets:
+            widget.setErrorString('')
+            widget.showErrorString(False)
+
+    def hideErrors(self):
+        for widget in self.reifiedWidgets:
+            widget.hideErrorString()
 
 
     def layoutComponent(self):
@@ -21,6 +58,17 @@ class ConfigPage(ScrolledPanel):
 
 
     def makeGroup(self, parent, thissizer, group, *args):
+        '''
+        Messily builds the (potentially) nested and grouped layout
+
+        Note! Mutates `self.reifiedWidgets` in place with the widgets as they're
+        instantiated! I cannot figure out how to split out the creation of the
+        widgets from their styling without WxPython violently exploding
+
+        TODO: sort out the WX quirks and clean this up.
+        '''
+
+        # determine the type of border , if any, the main sizer will use
         if getin(group, ['options', 'show_border'], False):
             boxDetails = wx.StaticBox(parent, -1, group['name'])
             boxSizer = wx.StaticBoxSizer(boxDetails, wx.VERTICAL)
@@ -38,6 +86,31 @@ class ConfigPage(ScrolledPanel):
         if not getin(group, ['options', 'show_border'], False):
             boxSizer.Add(wx_util.horizontal_rule(parent), 0, wx.EXPAND | wx.LEFT, 10)
 
+        ui_groups = self.chunkWidgets(group)
+
+        for uigroup in ui_groups:
+            sizer = wx.BoxSizer(wx.HORIZONTAL)
+            widgets = list(map(self.reifyWidget, uigroup))
+            # !! mutates instance prop `reifiedWidgets` !!
+            self.reifiedWidgets.extend(widgets)
+            for widget in widgets:
+                sizer.Add(widget, 1, wx.ALL, 5)
+            boxSizer.Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
+
+        # apply the same layout rules recursively for subgroups
+        hs = wx.BoxSizer(wx.HORIZONTAL)
+        for e, subgroup in enumerate(group['groups']):
+            self.makeGroup(parent, hs, subgroup, 1, wx.ALL | wx.EXPAND, 5)
+            if e % getin(group, ['options', 'columns'], 2) \
+                    or e == len(group['groups']):
+                boxSizer.Add(hs, *args)
+                hs = wx.BoxSizer(wx.HORIZONTAL)
+
+        thissizer.Add(boxSizer, *args)
+
+
+    def chunkWidgets(self, group):
+        # chunk the widgets up into groups based on their sizing hints
         ui_groups = []
         subgroup = []
         for index, item in enumerate(group['items']):
@@ -51,28 +124,14 @@ class ConfigPage(ScrolledPanel):
                     or item == group['items'][-1]:
                 ui_groups.append(subgroup)
                 subgroup = []
+        return ui_groups
 
+
+    def reifyWidget(self, item):
+        ''' Convert a JSON description of a widget into a WxObject '''
         from gooey.gui.components import widgets
-        for uigroup in ui_groups:
-            sizer = wx.BoxSizer(wx.HORIZONTAL)
-            for item in uigroup:
-                # instantiate the widget type
-                widgetClass = getattr(widgets, item['type'])
-                widget = widgetClass(parent, item)
-                sizer.Add(widget, 1, wx.ALL | wx.EXPAND, 5)
-            boxSizer.Add(sizer, 1, wx.ALL | wx.EXPAND, 5)
-
-        hs = wx.BoxSizer(wx.HORIZONTAL)
-        for e, subgroup in enumerate(group['groups']):
-            self.makeGroup(parent, hs, subgroup, 1, wx.ALL | wx.EXPAND, 5)
-            if e % getin(group, ['options', 'columns'], 2) \
-                or e == len(group['groups']):
-                boxSizer.Add(hs, *args)
-                hs = wx.BoxSizer(wx.HORIZONTAL)
-
-        thissizer.Add(boxSizer, *args)
-
-        return boxSizer
+        widgetClass = getattr(widgets, item['type'])
+        return widgetClass(self, item)
 
 
 

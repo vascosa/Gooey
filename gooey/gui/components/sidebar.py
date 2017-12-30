@@ -13,6 +13,7 @@ class Sidebar(wx.Panel):
         self._parent = parent
         self.buildSpec = buildSpec
         self.configPanels = configPanels
+        self.activeSelection = 0
         self.options = list(self.buildSpec['widgets'].keys())
         self.label = wx_util.h1(self, self.buildSpec.get('navigation_title'))
         self.leftPanel = wx.Panel(self)
@@ -61,5 +62,9 @@ class Sidebar(wx.Panel):
     def handleChange(self, event):
         for id, panel in enumerate(self.configPanels):
             panel.Hide()
+        self.activeSelection = event.Selection
         self.configPanels[event.Selection].Show()
         self._parent.Layout()
+
+    def getActiveConfig(self):
+        return self.configPanels[self.activeSelection]

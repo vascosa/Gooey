@@ -1,4 +1,6 @@
 import sys
+from itertools import chain
+
 import wx
 
 from gooey.gui import events
@@ -8,10 +10,11 @@ from gooey.gui.util import wx_util
 from gooey.gui.components.config import ConfigPage, TabbedConfigPage
 from gooey.gui.components.sidebar import Sidebar
 from gooey.gui.components.tabbar import Tabbar
-from gooey.util.functional import getin, assoc
+from gooey.util.functional import getin, assoc, flatmap, compact
 from gooey.python_bindings import constants
 from gooey.gui.pubsub import pub
-
+from gui import cli
+from gui.util.wx_util import transactUI
 
 
 class GooeyApplication(wx.Frame):
@@ -27,23 +30,36 @@ class GooeyApplication(wx.Frame):
         self.footer = Footer(self, buildSpec)
         self.layoutComponent()
 
-        # eee = events
+        self.widgetGroups = self.flattenWidgets(self.buildSpec)
 
         pub.subscribe(events.WINDOW_CANCEL, self.onStop)
         pub.subscribe(events.WINDOW_CLOSE, self.onClose)
         pub.subscribe(events.WINDOW_START, self.onStart)
-        pub.subscribe(events.USER_INPUT, self.updateState)
-
-
-    def updateState(self, *args, **kwargs):
-        self._state = assoc(self._state, kwargs.get('id'), kwargs)
-        import pprint
-        pprint.pprint(self._state)
-        print('\n======\n')
 
 
     def onStart(self, *args, **kwarg):
-        self._state.values()
+        with transactUI(self):
+            config = self.navbar.getActiveConfig()
+            config.resetErrors()
+            if config.isValid():
+                print(self.buildCliString())
+            else:
+                config.displayErrors()
+                self.Layout()
+
+
+    def buildCliString(self):
+        config = self.navbar.getActiveConfig()
+        group = self.buildSpec['widgets'][self.navbar.getSelectedGroup()]
+        positional = config.getPositionalArgs()
+        optional = config.getOptionalArgs()
+
+        return cli.buildCliString(
+            self.buildSpec['target'],
+            group['command'],
+            positional,
+            optional
+        )
 
 
     def onStop(self):
@@ -93,17 +109,14 @@ class GooeyApplication(wx.Frame):
 
 
     def flattenWidgets(self, buildSpec):
-
-        def extractWidgets(group):
-            if not group.get('groups'):
+        def foo2(group):
+            if not group:
                 return []
-            else:
-                return [item for item in group['items']] + \
-                       extractWidgets(group.get('groups'))
+            return group['items'] + flatmap(foo2, group['groups'])
+
         return {
-            cmdKey: extractWidgets(group)
-            for cmdKey, cmdGroup in buildSpec['widgets'].items()
-            for group in cmdGroup['contents']
+            cmdKey: flatmap(foo2, group['contents'])
+            for cmdKey, group in buildSpec['widgets'].items()
         }
 
 

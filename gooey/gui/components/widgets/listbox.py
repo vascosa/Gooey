@@ -1,6 +1,9 @@
 from gooey.gui.components.widgets.bases import TextContainer
 import wx
 
+from gui import formatters
+
+
 class Listbox(TextContainer):
 
     def getWidget(self, parent, *args, **options):
@@ -12,4 +15,10 @@ class Listbox(TextContainer):
             style=wx.LB_MULTIPLE
         )
 
+    def getWidgetValue(self):
+        return [self.widget.GetString(index)
+                for index in self.widget.GetSelections()]
 
+
+    def formatOutput(self, metadata, value):
+        return formatters.listbox(metadata, value)

@@ -3,8 +3,23 @@ Collection of Utility methods for creating often used, pre-styled wx Widgets
 """
 
 import wx
+from contextlib import contextmanager
 
 from gooey.gui.three_to_four import Constants
+
+
+@contextmanager
+def transactUI(obj):
+    """
+    Coarse grain UI locking to avoid glitchy UI updates
+    """
+    obj.Freeze()
+    try:
+        yield
+    finally:
+        obj.Thaw()
+
+
 
 
 styles = {

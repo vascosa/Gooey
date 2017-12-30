@@ -27,3 +27,8 @@ class Tabbar(wx.Panel):
         self.SetSizer(sizer)
         self.Layout()
 
+    def getSelectedGroup(self):
+        return self.options[self.notebook.Selection]
+
+    def getActiveConfig(self):
+        return self.configPanels[self.notebook.Selection]

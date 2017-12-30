@@ -4,7 +4,7 @@ import wx
 from gooey.gui import formatters, events
 from gooey.gui.pubsub import pub
 from gooey.gui.util import wx_util
-from gooey.util.functional import getin
+from gooey.util.functional import getin, ifPresent
 
 
 class BaseWidget(wx.Panel):
@@ -41,18 +41,20 @@ class TextContainer(BaseWidget):
     def __init__(self, parent, widgetInfo, *args, **kwargs):
         super(TextContainer, self).__init__(parent, *args, **kwargs)
 
+        self.info = widgetInfo
         self._id = widgetInfo['id']
         self._meta = widgetInfo['data']
         self._options = widgetInfo['options']
         self.label = wx.StaticText(self, label=widgetInfo['data']['display_name'])
         self.help_text = wx.StaticText(self, label=widgetInfo['data']['help'] or '')
-        self.error = wx.StaticText(self, label='asdf adsf asdf adsf asdf asdf ')
+        self.error = wx.StaticText(self, label='')
+        self.error.Hide()
         self.widget = self.getWidget(self)
         self.layout = self.arrange(*args, **kwargs)
         self.SetSizer(self.layout)
-        # self.error.Hide()
-        # self.value = Subject()
-        self.connectSignal()
+        # self.connectSignal()
+        self.Bind(wx.EVT_SIZE, self.onSize)
+
 
     def arrange(self, *args, **kwargs):
         wx_util.make_bold(self.label)
@@ -70,25 +72,52 @@ class TextContainer(BaseWidget):
         else:
             layout.AddStretchSpacer(1)
         layout.Add(self.getSublayout(), 0, wx.EXPAND)
-        layout.Add(self.error, 1, wx.EXPAND)
+        layout.Add(self.error)
+        self.error.Hide()
         return layout
 
     def getWidget(self, *args, **options):
         return self.widget_class(*args, **options)
 
-    def connectSignal(self):
-        self.widget.Bind(wx.EVT_TEXT, self.dispatchChange)
+    def getWidgetValue(self):
+        raise NotImplementedError
 
     def getSublayout(self, *args, **kwargs):
         layout = wx.BoxSizer(wx.HORIZONTAL)
         layout.Add(self.widget, 1, wx.EXPAND)
         return layout
 
+    def onSize(self, event):
+        self.error.Wrap(self.GetSize().width)
+        event.Skip()
+
     def getValue(self):
-        raise NotImplementedError
+        validator = getin(self._options, ['validator', 'test'], 'True')
+        message = getin(self._options, ['validator', 'message'], '')
+        testFunc = eval('lambda user_input: bool(%s)' % validator)
+        satisfies = testFunc if self._meta['required'] else ifPresent(testFunc)
+        value = self.getWidgetValue()
+        return {
+            'id': self._id,
+            'cmd': self.formatOutput(self._meta, value),
+            'rawValue': value,
+            'test': satisfies(value),
+            'error': None if satisfies(value) else message,
+            'clitype': 'positional'
+                        if self._meta['required'] and not self._meta['commands']
+                        else 'optional'
+        }
 
     def setValue(self, value):
         raise NotImplementedError
+
+    def setErrorString(self, message):
+        self.error.SetLabel(message)
+        self.error.Wrap(self.Size.width)
+
+    def showErrorString(self, b):
+        self.error.Wrap(self.Size.width)
+        self.error.Show(b)
 
     def receiveChange(self, metatdata, value):
         raise NotImplementedError
@@ -100,20 +129,16 @@ class TextContainer(BaseWidget):
         raise NotImplementedError
 
 
+
+
 class BaseChooser(TextContainer):
     """ Base Class for the Chooser widget types """
 
     def setValue(self, value):
         self.widget.SetValue(value)
 
-    def dispatchChange(self, event, **kwargs):
-        value = event.EventObject.GetValue()
-        pub.send_message(
-            events.USER_INPUT,
-            id=self._id,
-            cmd=self.formatOutput(self._meta, value),
-            rawValue=value
-        )
+    def getWidgetValue(self):
+        return self.widget.getValue()
 
     def formatOutput(self, metatdata, value):
         return formatters.general(metatdata, value)

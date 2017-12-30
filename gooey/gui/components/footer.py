@@ -10,10 +10,6 @@ class Footer(wx.Panel):
     '''
     Footer section used on the configuration
     screen of the application
-
-    args:
-      parent: wxPython parent windows
-      controller: controller class used in delagating all the commands
     '''
 
     def __init__(self, parent, buildSpec, **kwargs):
@@ -88,12 +84,8 @@ class Footer(wx.Panel):
             label=i18n._(label),
             style=style)
 
-
     def dispatch_click(self, event):
-        # print('hai dispatch', event.GetId())
         pub.send_message(event.GetId())
-        event.Skip()
-
 
     def hide_all_buttons(self):
         for button in self.buttons:

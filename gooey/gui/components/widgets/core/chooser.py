@@ -16,7 +16,6 @@ class Chooser(wx.Panel):
     def __init__(self, parent, *args, **kwargs):
         super(Chooser, self).__init__(parent)
         buttonLabel = kwargs.pop('label', 'Browse')
-        # todo customize button label
         self.widget = TextInput(self, *args, **kwargs)
         self.button = wx.Button(self, label=buttonLabel)
         self.button.Bind(wx.EVT_BUTTON, self.spawnDialog)
@@ -55,7 +54,7 @@ class Chooser(wx.Panel):
         self.widget.setValue(value)
 
     def getValue(self):
-        self.widget.getValue()
+        return self.widget.getValue()
 
 
 

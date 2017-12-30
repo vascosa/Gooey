@@ -242,7 +242,8 @@ def get_subparser(actions):
 
 def is_optional(action):
     '''
-    _actions either not possessing the `required` flag or implicitly optional through `nargs` being '*' or '?'
+    _actions either not possessing the `required` flag or implicitly optional
+    through `nargs` being '*' or '?'
     '''
     return (not action.required) or action.nargs in ['*', '?']
 
@@ -292,7 +293,9 @@ def choose_name(name, subparser):
 
 def build_radio_group(mutex_group, widget_group, options):
   return {
+    'id': str(uuid4()),
     'type': 'RadioGroup',
+    'cli_type': 'optional',
     'group_name': 'Choose Option',
     'required': mutex_group.required,
     'options': getattr(mutex_group, 'gooey_options', {}),
@@ -304,9 +307,26 @@ def build_radio_group(mutex_group, widget_group, options):
 
 
 def action_to_json(action, widget, options):
+    if action.required:
+        # check that it's present and not just spaces
+        validator = 'user_input and not user_input.isspace()'
+        error_msg = 'This field is required'
+    else:
+        # not required; do nothing;
+        validator = 'True'
+        error_msg = ''
+
+    base =  merge(item_default, {
+        'validator': {
+            'test': validator,
+            'message': error_msg
+        },
+    })
+
     return {
         'id': str(uuid4()),
         'type': widget,
+        'cli_type': choose_cli_type(action),
         'required': action.required,
         'data': {
             'display_name': action.metavar or action.dest,
@@ -318,9 +338,14 @@ def action_to_json(action, widget, options):
             'default': clean_default(action.default),
             'dest': action.dest,
         },
-        'options': merge(options.get(action.dest) or {}, item_default)
+        'options': merge(base, options.get(action.dest) or {})
     }
 
+
+def choose_cli_type(action):
+    return 'positional' \
+            if action.required and not action.option_strings \
+            else 'optional'
 
 def clean_default(default):
     '''
