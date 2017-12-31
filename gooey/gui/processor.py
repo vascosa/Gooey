@@ -5,11 +5,11 @@ import sys
 from functools import partial
 from multiprocessing.dummy import Pool
 
+from gooey.gui import events
 from gooey.gui.pubsub import pub
 from gooey.gui.util.casting import safe_float
-from gooey.gui.util.functional import unit, bind
 from gooey.gui.util.taskkill import taskkill
-from gooey.gui import events
+from gooey.util.functional import unit, bind
 
 
 class ProcessController(object):

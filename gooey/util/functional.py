@@ -73,3 +73,11 @@ def ifPresent(f):
         else:
             return True
     return inner
+
+
+def unit(val):
+    return val
+
+
+def bind(val, f):
+    return f(val) if val else None
