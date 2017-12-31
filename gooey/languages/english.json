@@ -7,6 +7,7 @@
   "execution_finished": "Execution finished",
   "finished_msg": "All done! You may now safely close the program.",
   "finished_error": "An error has occurred.",
+  "finished_forced_quit": "Terminated by user",
   "finished_title": "Finished",
   "optional_args_msg": "Optional Arguments",
   "required_args_msg": "Required Arguments",
@@ -24,6 +25,6 @@
   "success_message": "Program completed successfully!",
   "sure_you_want_to_exit": "Are you sure you want to exit?",
   "sure_you_want_to_stop": "Are you sure you want to stop the task? \nInterruption can corrupt your data!",
-  "uh_oh": "\nUh oh! Looks like there was a problem. \nCopy the text from status window to let your developer know what went wrong.\n",
+  "uh_oh": "\nUh oh! Looks like there was a problem. \nCopy the text from the status window to let your developer know what went wrong.\n",
   "browse": "Browse"
 }

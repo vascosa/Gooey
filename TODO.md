@@ -1,6 +1,11 @@
 Release TODO
 ============
 
+
+ - [X] text encoding
+ - [X] pass down the font info to the console
+ - [X] pass down the style info to the console
+
 Issue #234
  - allow general options
 

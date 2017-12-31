@@ -24,7 +24,7 @@ class TextInput(wx.Panel):
 
     def setValue(self, value):
         self.widget.Clear()
-        self.widget.AppendText(value)
+        self.widget.AppendText(str(value))
         self.widget.SetInsertionPoint(0)
 
 

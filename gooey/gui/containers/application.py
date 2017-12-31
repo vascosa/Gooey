@@ -18,6 +18,7 @@ from gooey.gui.components.console import Console
 from gooey.gui.lang.i18n import _
 from gooey.gui.processor import ProcessController
 from gooey.gui.util.wx_util import transactUI
+from gooey.gui.components import modals
 
 
 class GooeyApplication(wx.Frame):
@@ -31,26 +32,25 @@ class GooeyApplication(wx.Frame):
         self.configs = self.buildConfigPanels(self)
         self.navbar = self.buildNavigation()
         self.footer = Footer(self, buildSpec)
-        self.console = Console(self)
+        self.console = Console(self, buildSpec)
         self.layoutComponent()
 
         self.clientRunner = ProcessController(
             self.buildSpec.get('progress_regex'),
-            self.buildSpec.get('progress_expr')
+            self.buildSpec.get('progress_expr'),
+            self.buildSpec.get('encoding')
         )
 
-        pub.subscribe(events.WINDOW_STOP, self.onStop)
-        pub.subscribe(events.WINDOW_CLOSE, self.onClose)
         pub.subscribe(events.WINDOW_START, self.onStart)
+        pub.subscribe(events.WINDOW_RESTART, self.onStart)
+        pub.subscribe(events.WINDOW_STOP, self.onStopExecution)
+        pub.subscribe(events.WINDOW_CLOSE, self.onClose)
+        pub.subscribe(events.WINDOW_CANCEL, self.onCancel)
         pub.subscribe(events.WINDOW_EDIT, self.onEdit)
         pub.subscribe(events.CONSOLE_UPDATE, self.console.logOutput)
         pub.subscribe(events.EXECUTION_COMPLETE, self.onComplete)
+        pub.subscribe(events.PROGRESS_UPDATE, self.footer.updateProgressBar)
 
-    # def confirmStop(self):
-    #     if self.view.confirm_stop_dialog():
-    #         self.stop()
-    #         return True
-    #     return False
 
     def onStart(self, *args, **kwarg):
         """
@@ -98,21 +98,30 @@ class GooeyApplication(wx.Frame):
         with transactUI(self):
             if self.clientRunner.was_success():
                 self.showSuccess()
+                wx.CallAfter(modals.showSuccess)
             else:
-                self.showError()
+                if self.clientRunner.wasForcefullyStopped:
+                    self.showForceStopped()
+                else:
+                    self.showError()
+                    wx.CallAfter(modals.showFailure)
 
 
-    def onStop(self):
-        print("Gunna stop!!")
-        self.clientRunner.stop()
+    def onStopExecution(self):
+        """Displays a scary message and then force-quits the executing
+        client code if the user accepts"""
+        if modals.confirmForceStop():
+            self.clientRunner.stop()
 
-        import sys
-        # sys.exit(1)
-        # if self.view.confirm_exit_dialog():
-        #     self.view.Destroy()
-        #     sys.exit()
+
+    def onCancel(self):
+        """Close the program after confirming"""
+        if modals.confirmExit():
+            self.onClose()
+
 
     def onClose(self):
+        """Cleanup the top level WxFrame and shutdown the process"""
         self.Destroy()
         sys.exit()
 
@@ -179,6 +188,8 @@ class GooeyApplication(wx.Frame):
         self.header.setSubtitle(_('running_msg'))
         self.footer.showButtons('stop_button')
         self.footer.progress_bar.Show(True)
+        if not self.buildSpec['progress_regex']:
+            self.footer.progress_bar.Pulse()
 
 
     def showComplete(self):
@@ -202,5 +213,10 @@ class GooeyApplication(wx.Frame):
         self.header.setTitle(_('finished_title'))
         self.header.setSubtitle(_('finished_error'))
 
+
+    def showForceStopped(self):
+        self.showComplete()
+        self.showError()
+        self.header.setSubtitle(_('finished_forced_quit'))
 
 

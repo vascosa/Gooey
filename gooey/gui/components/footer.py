@@ -1,4 +1,4 @@
-
+import sys
 import wx
 
 from gooey.gui import events
@@ -14,8 +14,9 @@ class Footer(wx.Panel):
 
     def __init__(self, parent, buildSpec, **kwargs):
         wx.Panel.__init__(self, parent, **kwargs)
-        self.SetMinSize((30, 53))
+        self.buildSpec = buildSpec
 
+        self.SetMinSize((30, 53))
         # components
         self.cancel_button = None
         self.start_button = None
@@ -33,6 +34,34 @@ class Footer(wx.Panel):
 
         for button in self.buttons:
             self.Bind(wx.EVT_BUTTON, self.dispatch_click, button)
+
+    def updateProgressBar(self, *args, **kwargs):
+        '''
+         value, disable_animation=False
+        :param args:
+        :param kwargs:
+        :return:
+        '''
+        value = kwargs.get('progress')
+        pb = self.progress_bar
+        if value is None:
+            return
+        if value < 0:
+            pb.Pulse()
+        else:
+            value = min(int(value), pb.GetRange())
+            if pb.GetValue() != value:
+                # Windows 7 progress bar animation hack
+                # http://stackoverflow.com/questions/5332616/disabling-net-progressbar-animation-when-changing-value
+                if self.buildSpec['disable_progress_bar_animation'] \
+                        and sys.platform.startswith("win"):
+                    if pb.GetRange() == value:
+                        pb.SetValue(value)
+                        pb.SetValue(value - 1)
+                    else:
+                        pb.SetValue(value + 1)
+                pb.SetValue(value)
+
 
     def showButtons(self, *buttonsToShow):
         for button in self.buttons:
@@ -56,6 +85,9 @@ class Footer(wx.Panel):
                         self.stop_button, self.close_button,
                         self.restart_button, self.edit_button]
 
+        if self.buildSpec['disable_stop_button']:
+            self.stop_button.Enable(False)
+
 
     def _do_layout(self):
         self.stop_button.Hide()
@@ -64,7 +96,7 @@ class Footer(wx.Panel):
         v_sizer = wx.BoxSizer(wx.VERTICAL)
         h_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        h_sizer.Add(self.progress_bar, 0,
+        h_sizer.Add(self.progress_bar, 1,
                     wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 20)
         self.progress_bar.Hide()
 

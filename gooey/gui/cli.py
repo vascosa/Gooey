@@ -12,7 +12,7 @@ def buildCliString(target, cmd, positional, optional):
 
     cmd_string = ' '.join(compact(chain(optional, positional)))
 
-    if cmd != 'primary':
+    if cmd != '::gooey/default':
         cmd_string = u'{} {}'.format(cmd, cmd_string)
 
     return u'{} --ignore-gooey {}'.format(target, cmd_string)

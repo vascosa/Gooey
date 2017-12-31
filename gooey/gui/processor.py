@@ -13,10 +13,12 @@ from gooey.gui import events
 
 
 class ProcessController(object):
-    def __init__(self, progress_regex, progress_expr):
+    def __init__(self, progress_regex, progress_expr, encoding):
         self._process = None
         self.progress_regex = progress_regex
         self.progress_expr = progress_expr
+        self.encoding = encoding
+        self.wasForcefullyStopped = False
 
     def was_success(self):
         self._process.communicate()
@@ -29,12 +31,14 @@ class ProcessController(object):
 
     def stop(self):
         if self.running():
+            self.wasForcefullyStopped = True
             taskkill(self._process.pid)
 
     def running(self):
         return self._process and self.poll() is None
 
     def run(self, command):
+        self.wasForcefullyStopped = False
         env = os.environ.copy()
         env["GOOEY"] = "1"
         try:
@@ -58,8 +62,8 @@ class ProcessController(object):
             line = process.stdout.readline()
             if not line:
                 break
-            pub.send_message(events.CONSOLE_UPDATE, msg=line)
-            pub.send_message('progress_update',
+            pub.send_message(events.CONSOLE_UPDATE, msg=line.decode(self.encoding))
+            pub.send_message(events.PROGRESS_UPDATE,
                              progress=self._extract_progress(line))
         pub.send_message(events.EXECUTION_COMPLETE)
 
@@ -69,7 +73,7 @@ class ProcessController(object):
         user-supplied regex and calculation instructions
         '''
         # monad-ish dispatch to avoid the if/else soup
-        find = partial(re.search, string=text.strip())
+        find = partial(re.search, string=text.strip().decode(self.encoding))
         regex = unit(self.progress_regex)
         match = bind(regex, find)
         result = bind(match, self._calculate_progress)

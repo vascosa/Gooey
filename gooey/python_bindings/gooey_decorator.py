@@ -13,6 +13,7 @@ from argparse import ArgumentParser
 
 from gooey.gui import application
 from gooey.gui.util.freeze import getResourcePath
+from util.functional import merge
 from . import config_generator
 
 IGNORE_COMMAND = '--ignore-gooey'
@@ -41,13 +42,14 @@ def Gooey(f=None,
           group_by_type=True,
           header_height=80,
           navigation='SIDEBAR', # TODO: add this to the docs
-          tabbed_groups=False): # TODO: add this to the docs
+          tabbed_groups=False,
+          **kwargs):
   '''
   Decorator for client code's main function.
   Serializes argparse data to JSON for use with the Gooey front end
   '''
 
-  params = locals()
+  params = merge(locals(), locals()['kwargs'])
 
   def build(payload):
     def run_gooey(self, args=None, namespace=None):

@@ -15,12 +15,32 @@ class Sidebar(wx.Panel):
         self.configPanels = configPanels
         self.activeSelection = 0
         self.options = list(self.buildSpec['widgets'].keys())
-        self.label = wx_util.h1(self, self.buildSpec.get('navigation_title'))
         self.leftPanel = wx.Panel(self)
-        self.listbox = wx.ListBox(self, -1, choices=self.options)
-        self.Bind(wx.EVT_LISTBOX, self.handleChange, self.listbox)
+        self.label = wx_util.h1(self.leftPanel, self.buildSpec.get('navigation_title'))
+        self.listbox = wx.ListBox(self.leftPanel, -1, choices=self.options)
+        self.Bind(wx.EVT_LISTBOX, self.swapConfigPanels, self.listbox)
         self.layoutComponent()
         self.listbox.SetSelection(0)
+
+
+    def getSelectedGroup(self):
+        """Return the currently active 'group' i.e. the root SubParser """
+        return self.options[self.activeSelection]
+
+
+    def getActiveConfig(self):
+        """Return the currently visible config screen"""
+        return self.configPanels[self.activeSelection]
+
+
+    def swapConfigPanels(self, event):
+        """Hide/show configuration panels based on the currently selected
+         option in the sidebar """
+        for id, panel in enumerate(self.configPanels):
+            panel.Hide()
+        self.activeSelection = event.Selection
+        self.configPanels[event.Selection].Show()
+        self._parent.Layout()
 
 
     def layoutComponent(self):
@@ -40,6 +60,10 @@ class Sidebar(wx.Panel):
             body.Hide()
         self.configPanels[0].Show()
         self.SetSizer(hsizer)
+
+        if not self.buildSpec['show_sidebar']:
+            left.Show(False)
+
         self.Layout()
 
 
@@ -59,12 +83,4 @@ class Sidebar(wx.Panel):
         return self.leftPanel
 
 
-    def handleChange(self, event):
-        for id, panel in enumerate(self.configPanels):
-            panel.Hide()
-        self.activeSelection = event.Selection
-        self.configPanels[event.Selection].Show()
-        self._parent.Layout()
 
-    def getActiveConfig(self):
-        return self.configPanels[self.activeSelection]

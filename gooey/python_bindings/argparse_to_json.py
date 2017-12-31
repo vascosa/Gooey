@@ -77,7 +77,7 @@ def convert(parser, **kwargs):
                                     getattr(sub_parser, 'options', {}))
             }) for name, sub_parser in iter_parsers(parser))
     }
-    pprint.pprint(x)
+
     if kwargs.get('use_legacy_titles'):
         return apply_default_rewrites(x)
     return x
@@ -105,7 +105,7 @@ def iter_parsers(parser):
     try:
         return get_subparser(parser._actions).choices.items()
     except:
-        return iter([('primary', parser)])
+        return iter([('::gooey/default', parser)])
 
 
 def extract_groups(action_group):
