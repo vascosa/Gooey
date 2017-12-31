@@ -5,7 +5,6 @@ Main runner entry point for Gooey.
 import wx
 import wx.lib.inspection
 from gooey.gui.lang import i18n
-from gooey.gui.controller import Controller
 
 from gooey.gui import image_repository
 from gooey.gui.containers.application import GooeyApplication

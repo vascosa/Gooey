@@ -2,12 +2,24 @@ import os
 import sys
 import warnings
 
-from gooey.gui.windows import layouts
 from gooey.python_bindings import argparse_to_json
 from gooey.gui.util.quoting import quote
 from gooey.python_bindings import constants
 
-warnings.warn
+default_layout = {
+    'widgets': [{
+      'type': 'CommandField',
+      'required': True,
+      'data': {
+        'display_name': 'Enter Commands',
+        'help': 'Enter command line arguments',
+        'nargs': '',
+        'commands': '',
+        'choices': [],
+        'default': None,
+      }
+    }],
+}
 
 
 def create_from_parser(parser, source_path, **kwargs):
@@ -81,7 +93,7 @@ def create_from_parser(parser, source_path, **kwargs):
 
     layout_data = (argparse_to_json.convert(parser, **build_spec)
                    if build_spec['show_advanced']
-                   else layouts.basic_config.items())
+                   else default_layout.items())
 
     build_spec.update(layout_data)
 
