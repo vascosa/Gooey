@@ -52,8 +52,9 @@ class TextContainer(BaseWidget):
         self.widget = self.getWidget(self)
         self.layout = self.arrange(*args, **kwargs)
         self.SetSizer(self.layout)
-        # self.connectSignal()
         self.Bind(wx.EVT_SIZE, self.onSize)
+        if self._meta['default']:
+            self.setValue(self._meta['default'])
 
 
     def arrange(self, *args, **kwargs):
@@ -109,7 +110,7 @@ class TextContainer(BaseWidget):
         }
 
     def setValue(self, value):
-        raise NotImplementedError
+        self.widget.SetValue(value)
 
     def setErrorString(self, message):
         self.error.SetLabel(message)
@@ -135,7 +136,7 @@ class BaseChooser(TextContainer):
     """ Base Class for the Chooser widget types """
 
     def setValue(self, value):
-        self.widget.SetValue(value)
+        self.widget.setValue(value)
 
     def getWidgetValue(self):
         return self.widget.getValue()

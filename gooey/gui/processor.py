@@ -9,6 +9,7 @@ from gooey.gui.pubsub import pub
 from gooey.gui.util.casting import safe_float
 from gooey.gui.util.functional import unit, bind
 from gooey.gui.util.taskkill import taskkill
+from gooey.gui import events
 
 
 class ProcessController(object):
@@ -57,10 +58,10 @@ class ProcessController(object):
             line = process.stdout.readline()
             if not line:
                 break
-            pub.send_message('console_update', msg=line)
+            pub.send_message(events.CONSOLE_UPDATE, msg=line)
             pub.send_message('progress_update',
                              progress=self._extract_progress(line))
-        pub.send_message('execution_complete')
+        pub.send_message(events.EXECUTION_COMPLETE)
 
     def _extract_progress(self, text):
         '''

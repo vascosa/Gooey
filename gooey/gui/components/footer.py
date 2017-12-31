@@ -24,9 +24,7 @@ class Footer(wx.Panel):
         self.stop_button = None
         self.restart_button = None
         self.edit_button = None
-        self.buttons = [self.cancel_button, self.start_button,
-                        self.stop_button, self.close_button,
-                        self.restart_button, self.edit_button]
+        self.buttons = []
 
         self.layouts = {}
 
@@ -35,6 +33,14 @@ class Footer(wx.Panel):
 
         for button in self.buttons:
             self.Bind(wx.EVT_BUTTON, self.dispatch_click, button)
+
+    def showButtons(self, *buttonsToShow):
+        for button in self.buttons:
+            button.Show(False)
+        for button in buttonsToShow:
+            getattr(self, button).Show(True)
+        self.Layout()
+
 
     def _init_components(self):
         self.cancel_button = self.button(i18n._('cancel'), wx.ID_CANCEL, event_id=events.WINDOW_CANCEL)
@@ -45,6 +51,10 @@ class Footer(wx.Panel):
         self.edit_button = self.button(i18n._('edit'), wx.ID_OK, event_id=int(events.WINDOW_EDIT))
 
         self.progress_bar = wx.Gauge(self, range=100)
+
+        self.buttons = [self.cancel_button, self.start_button,
+                        self.stop_button, self.close_button,
+                        self.restart_button, self.edit_button]
 
 
     def _do_layout(self):

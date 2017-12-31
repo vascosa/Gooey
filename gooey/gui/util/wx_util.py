@@ -17,6 +17,7 @@ def transactUI(obj):
     try:
         yield
     finally:
+        obj.Layout()
         obj.Thaw()
 
 

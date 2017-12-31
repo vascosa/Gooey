@@ -90,10 +90,8 @@ class ConfigPage(ScrolledPanel):
 
         for uigroup in ui_groups:
             sizer = wx.BoxSizer(wx.HORIZONTAL)
-            widgets = list(map(self.reifyWidget, uigroup))
-            # !! mutates instance prop `reifiedWidgets` !!
-            self.reifiedWidgets.extend(widgets)
-            for widget in widgets:
+            for item in uigroup:
+                widget = self.reifyWidget(parent, item)
                 sizer.Add(widget, 1, wx.ALL, 5)
             boxSizer.Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -110,7 +108,7 @@ class ConfigPage(ScrolledPanel):
 
 
     def chunkWidgets(self, group):
-        # chunk the widgets up into groups based on their sizing hints
+        ''' chunk the widgets up into groups based on their sizing hints '''
         ui_groups = []
         subgroup = []
         for index, item in enumerate(group['items']):
@@ -127,11 +125,11 @@ class ConfigPage(ScrolledPanel):
         return ui_groups
 
 
-    def reifyWidget(self, item):
+    def reifyWidget(self, parent, item):
         ''' Convert a JSON description of a widget into a WxObject '''
         from gooey.gui.components import widgets
         widgetClass = getattr(widgets, item['type'])
-        return widgetClass(self, item)
+        return widgetClass(parent, item)
 
 
 

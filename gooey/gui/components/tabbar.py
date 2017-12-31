@@ -32,3 +32,6 @@ class Tabbar(wx.Panel):
 
     def getActiveConfig(self):
         return self.configPanels[self.notebook.Selection]
+
+    def show(self, b):
+        self.Show(b)

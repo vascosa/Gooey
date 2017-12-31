@@ -28,17 +28,22 @@ class FrameHeader(wx.Panel):
         self.check_mark = None
         self.error_symbol = None
 
+        self.images = []
+
         self.layoutComponent()
 
 
     def setTitle(self, title):
-        pass
+        self._header.SetLabel(title)
 
     def setSubtitle(self, subtitle):
-        pass
+        self._subheader.SetLabel(subtitle)
 
     def setImage(self, image):
-        pass
+        for img in self.images:
+            img.Show(False)
+        getattr(self, image).Show(True)
+        self.Layout()
 
 
     def layoutComponent(self):
@@ -56,6 +61,13 @@ class FrameHeader(wx.Panel):
         self.running_img = self._load_image(images['runningIcon'], targetHeight)
         self.check_mark = self._load_image(images['successIcon'], targetHeight)
         self.error_symbol = self._load_image(images['errorIcon'], targetHeight)
+
+        self.images = [
+            self.settings_img,
+            self.running_img,
+            self.check_mark,
+            self.error_symbol
+        ]
 
         vsizer = wx.BoxSizer(wx.VERTICAL)
         sizer = wx.BoxSizer(wx.HORIZONTAL)

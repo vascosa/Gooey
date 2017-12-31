@@ -15,6 +15,10 @@ class Listbox(TextContainer):
             style=wx.LB_MULTIPLE
         )
 
+    def setValue(self, values):
+        for string in values:
+            self.widget.SetStringSelection(string)
+
     def getWidgetValue(self):
         return [self.widget.GetString(index)
                 for index in self.widget.GetSelections()]

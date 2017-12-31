@@ -1,10 +1,16 @@
 Release TODO
 ============
 
+Issue #234
+ - allow general options
+
 README:
 
  - update README with all the things
 
+  - validation howto
+  - advanced layout howto
+  - turning on/off dialog options
 
 Custom Validation:
 

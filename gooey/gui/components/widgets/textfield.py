@@ -13,7 +13,7 @@ class TextField(TextContainer):
         return self.widget.getValue()
 
     def setValue(self, value):
-        self.widget.SetValue(value)
+        self.widget.setValue(value)
 
     def formatOutput(self, metatdata, value):
         return formatters.general(metatdata, value)

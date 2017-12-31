@@ -18,5 +18,8 @@ WINDOW_CHANGE   = wx.NewId()
 PANEL_CHANGE    = wx.NewId()
 LIST_BOX        = wx.NewId()
 
+CONSOLE_UPDATE  = wx.NewId()
+EXECUTION_COMPLETE = wx.NewId()
+
 USER_INPUT = wx.NewId()
 
