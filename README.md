@@ -378,9 +378,11 @@ def main():
     print("Cool! Your secret number is: ", args.secret)
 ```
 
-With the validator in place, Gooey can present the error messages next to the relevant input field if any validators fail. 
+<img src="https://user-images.githubusercontent.com/1408720/34465024-f011ac3e-ee4f-11e7-80ae-330adb4c47d6.png" width="400" height="auto" align="left" />
 
-![image](https://user-images.githubusercontent.com/1408720/34465024-f011ac3e-ee4f-11e7-80ae-330adb4c47d6.png)
+With the validator in place, Gooey can present the error messages next to the relevant input field if any validators fail.  
+
+
 
 
 
