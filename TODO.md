@@ -16,6 +16,7 @@ README:
   - validation howto
   - advanced layout howto
   - turning on/off dialog options
+  - full list of custom widgets and their options
 
 Custom Validation:
 

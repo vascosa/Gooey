@@ -139,11 +139,6 @@ class TabbedConfigPage(ConfigPage):
     """
     Splits top-level groups across tabs
     """
-    def __init__(self, parent, rawWidgets, *args, **kwargs):
-        super(ConfigPage, self).__init__(parent, *args, **kwargs)
-        self.SetupScrolling(scroll_x=False, scrollToTop=False)
-        self.rawWidgets = rawWidgets
-        self.layoutComponent()
 
 
     def layoutComponent(self):

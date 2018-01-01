@@ -75,6 +75,11 @@ def ifPresent(f):
     return inner
 
 
+def identity(x):
+    """Identity function always returns the supplied argument"""
+    return x
+
+
 def unit(val):
     return val
 

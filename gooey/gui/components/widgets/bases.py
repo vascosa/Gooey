@@ -5,6 +5,7 @@ from gooey.gui import formatters, events
 from gooey.gui.pubsub import pub
 from gooey.gui.util import wx_util
 from gooey.util.functional import getin, ifPresent
+from gooey.gui.validators import runValidator
 
 
 class BaseWidget(wx.Panel):
@@ -93,17 +94,18 @@ class TextContainer(BaseWidget):
         event.Skip()
 
     def getValue(self):
-        validator = getin(self._options, ['validator', 'test'], 'True')
+        userValidator = getin(self._options, ['validator', 'test'], 'True')
         message = getin(self._options, ['validator', 'message'], '')
-        testFunc = eval('lambda user_input: bool(%s)' % validator)
+        testFunc = eval('lambda user_input: bool(%s)' % userValidator)
         satisfies = testFunc if self._meta['required'] else ifPresent(testFunc)
         value = self.getWidgetValue()
+
         return {
             'id': self._id,
             'cmd': self.formatOutput(self._meta, value),
             'rawValue': value,
-            'test': satisfies(value),
-            'error': None if satisfies(value) else message,
+            'test': runValidator(satisfies, value),
+            'error': None if runValidator(satisfies, value) else message,
             'clitype': 'positional'
                         if self._meta['required'] and not self._meta['commands']
                         else 'optional'
