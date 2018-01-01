@@ -32,8 +32,6 @@ Table of Contents
 - [Customizing Icons](#customizing-icons)
 - [Packaging](#packaging)
 - [Screenshots](#screenshots)
-- [Change Log](#change-log)
-- [TODO](#todo)
 - [Contributing](#wanna-help)
 - [Image Credits](#image-credits)
 
@@ -375,27 +373,7 @@ Screenshots
 ----------------------------------------------  
 
 
-### Change Log
-----------
 
-- Subparser Support! 
-- Moved all internal messaging to pubsub
-- expanded i18n converage
-- allowed returning to the main configuration screen 
-- Fixed success checkmark showing on failure 
-- Refactoring to beauty 
-- Removed parsing code, replaced it with @SylvainDe patch
-- Fixed issue #87
-- Fixed issue #85
-- Argparse no longer required to be in `main` (issue 84)
-- Drag and Drop support (`Issue #28`)
-- Added drag and drop support
-- Added new widget packs: DateChooser, FileChooser, DirChooser
-- fixed several parsing related issues. 
-- Gooey now has a sane setup.py (thanks to hero user LudoVio) 
-- Gooey now builds from json for easy configurability 
-    - Side Note: This was done with big strides towards making Gooey language agnostic. Coming Soon! 
-- Fixed GUI layout so that resizing works better
 
 
 
