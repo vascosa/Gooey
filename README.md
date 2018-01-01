@@ -364,6 +364,12 @@ Screenshots
 |-------------|---------------|---------------|--------------|----------------|
 | <img src="https://cloud.githubusercontent.com/assets/1408720/7950190/4414e54e-0965-11e5-964b-f717a7adaac6.jpg"> | <img src="https://cloud.githubusercontent.com/assets/1408720/7950189/4411b824-0965-11e5-905a-3a2b5df0efb3.jpg"> | <img src="https://cloud.githubusercontent.com/assets/1408720/7950192/44165442-0965-11e5-8edf-b8305353285f.jpg"> | <img src="https://cloud.githubusercontent.com/assets/1408720/7950188/4410dcce-0965-11e5-8243-c1d832c05887.jpg"> | <img src="https://cloud.githubusercontent.com/assets/1408720/7950191/4415432c-0965-11e5-9190-17f55460faf3.jpg"> | 
 
+| Custom Groups | Tabbed Groups | Tabbed Navigation | Sidebar Navigation | Input Validation |
+|-------------|---------------|---------------|--------------|----------------|
+| <img src="https://user-images.githubusercontent.com/1408720/34464824-c044d57a-ee46-11e7-9c35-6e701a7c579a.png"> | <img src="https://user-images.githubusercontent.com/1408720/34464826-2a946ba2-ee47-11e7-92a4-4afeb49dc9ca.png"> | <img src="https://user-images.githubusercontent.com/1408720/34464835-5ba9b0e4-ee47-11e7-9561-55e3647c2165.png"> | <img src="https://user-images.githubusercontent.com/1408720/34464847-9918fbb0-ee47-11e7-8d5f-0d42631c2bc0.png"> | <img src="https://user-images.githubusercontent.com/1408720/34464861-0e82c214-ee48-11e7-8f4a-a8e00721efef.png"> | 
+
+
+
 
 
 ----------------------------------------------  
