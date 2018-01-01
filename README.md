@@ -29,6 +29,7 @@ Table of Contents
     - [Full/Advanced](#advanced)
     - [Basic](#basic)
     - [No Config](#no-config)
+- [Input Validation](#input-validation)
 - [Customizing Icons](#customizing-icons)
 - [Packaging](#packaging)
 - [Screenshots](#screenshots)
@@ -36,16 +37,6 @@ Table of Contents
 - [Image Credits](#image-credits)
 
 
-
-
-----------
-
-
-### Artist Wanted!
-
-Want to contribute to Gooey? We need icons/logos!
-
-Drop me an <a href="mailto:audionautic@gmail.com">email</a> if you want to help out!
 
 ----------------  
 
@@ -324,6 +315,74 @@ No Config pretty much does what you'd expect: it doesn't show a configuration sc
 <p align="center">
     <img src="https://cloud.githubusercontent.com/assets/1408720/7904382/f54fe6f2-07c5-11e5-92e4-f72a2ae12862.png">
 </p>
+
+---------------------------------------  
+
+
+### Input Validation
+
+
+<img src="https://user-images.githubusercontent.com/1408720/34464861-0e82c214-ee48-11e7-8f4a-a8e00721efef.png" width="400" height="auto" align="right" />
+
+
+>:warning: 
+>Note! This functionality is experimental. Its API may be changed or removed alltogether. Feedback/thoughts on this feature is welcome and encouraged! 
+
+Gooey can optionally do some basic pre-flight validation on user input. Internally, it uses these validator functions to check for the presence of required arguments. However, by using [GooeyParser](#gooeyparser), you can extend these functions with your own validation rules. This allows Gooey to show much, much more user friendly feedback before it hands control off to your program. 
+
+
+**Writing a validator:**
+
+Validators are specified as part of the `gooey_options` map available to `GooeyParser`. It's a simple map structure made up of a root key named `validator` and two internal pairs: 
+
+ * `test` The inner body of the validation test you wish to perform 
+ * `message` the error message that should display given a validation failure
+ 
+e.g.
+
+```
+gooey_options={
+    'validator':{
+        'test': 'len(user_input) > 3',
+        'message': 'some helpful message'
+    }
+}
+```
+
+**The `test` function**
+
+Your test function can be made up of any valid Python expression. It receives the variable `user_input` as an argument against which to perform its validation. Note that all values coming from Gooey are in the form of a string, so you'll have to cast as needed in order to perform your validation.   
+
+**Full Code Example**
+
+```
+from gooey.python_bindings.gooey_decorator import Gooey
+from gooey.python_bindings.gooey_parser import GooeyParser
+
+@Gooey
+def main():
+    parser = GooeyParser(description='Example validator')
+    parser.add_argument(
+        'secret',
+        metavar='Super Secret Number',
+        help='A number specifically between 2 and 14',
+        gooey_options={
+            'validator': {
+                'test': '2 <= int(user_input) <= 14',
+                'message': 'Must be between 2 and 14'
+            }
+        })
+
+    args = parser.parse_args()
+
+    print("Cool! Your secret number is: ", args.secret)
+```
+
+With the validator in place, Gooey can present the error messages next to the relevant input field if any validators fail. 
+
+![image](https://user-images.githubusercontent.com/1408720/34465024-f011ac3e-ee4f-11e7-80ae-330adb4c47d6.png)
+
+
 
 ---------------------------------------  
 
