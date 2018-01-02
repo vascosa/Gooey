@@ -24,7 +24,8 @@ Table of Contents
 - [Who is this for](#who-is-this-for)
 - [How does it work](#how-does-it-work)
 - [Internationalization](#internationalization)
-- [Configuration](#configuration)
+- [Global Configuration](#global-configuration)
+- [Local Configuarion](#local-configuration)
 - [Run Modes](#run-modes)
     - [Full/Advanced](#advanced)
     - [Basic](#basic)
@@ -229,13 +230,15 @@ Want to add another one? Submit a [pull request!](https://github.com/chriskiehl/
 
 
 
-Configuration 
--------------
+Global Configuration 
+--------------------
 
-Just about everything in Gooey can be customized by passing arguments to the decorator. 
+Just about everything in Gooey's overall look and feel can be customized by passing arguments to the decorator. 
 
 | Parameter | Summary | 
 |-----------|---------|
+| encoding | Text encoding to use when displaying characters (default: 'utf-8') | 
+| use_legacy_titles | Rewrites the default argparse group name from "Positional" to "Required". This is primarily for retaining backward compatibilty with previous versions of Gooey (which had poor support/awareness of groups and did its own naive bucketing of arguments). |
 | advanced | Toggles whether to show the 'full' configuration screen, or a simplified version | 
 | show_config | Skips the configuration all together and runs the program immediately |
 | language | Tells Gooey which language set to load from the `gooey/languages` directory.|
@@ -243,14 +246,23 @@ Just about everything in Gooey can be customized by passing arguments to the dec
 |program_name | The name displayed in the title bar of the GUI window. If not supplied, the title defaults to the script name pulled from `sys.argv[0]`. |
 | program_description | Sets the text displayed in the top panel of the `Settings` screen. Defaults to the description pulled from `ArgumentParser`. |
 | default_size | Initial size of the window | 
-| required_cols | Controls how many columns are in the Required Arguments section |
-| optional_cols | Controls how many columns are in the Optional Arguments section |
+| required_cols | Controls how many columns are in the Required Arguments section <br> :warning: **Deprecation notice:** See [Group Parameters](#group-configuration) for modern layout controls|
+| optional_cols | Controls how many columns are in the Optional Arguments section <br> :warning: **Deprecation notice:** See [Group Parameters](#group-configuration) for modern layout controls|
 | dump_build_config | Saves a `json` copy of its build configuration on disk for reuse/editing | 
 | load_build_config | Loads a `json` copy of its build configuration from disk | 
-| monospace_display | Uses a mono-spaced font in the output screen | 
+| monospace_display | Uses a mono-spaced font in the output screen <br> :warning: **Deprecation notice:** See [Group Parameters](#group-configuration) for modern font configuration| 
 | image_dir | Path to the directory in which Gooey should look for custom images/icons |
 | language_dir | Path to the directory in which Gooey should look for custom languages files |
+| navigation_title | <img src="https://user-images.githubusercontent.com/1408720/34472159-1bfedbd0-ef10-11e7-8bc3-b6d69febb8c3.png" width="250" height="auto" align="right"> Controls the heading title above the SideBar's navigation pane. Defaults to: "Actions" |
+| disable_stop_button | Disable the `Stop` button when running |
+| progress_regex | A text regex used to pattern match runtime progress information. See: [Showing Progress](#showing-progress) for a detailed how-to | 
+| progress_expr | A python expression applied to any matches found via the `progress_regex`. See: [Showing Progress](#showing-progress) for a detailed how-to |
+| disable_progress_bar_animation | Disable the progress bar | 
+| navigation | Sets the "navigation" style of Gooey's top level window. <br>Options: <table> <thead> <tr><th>TABBED</th><th>SIDEBAR</th></tr></thead> <tbody> <tr> <td><img src="https://user-images.githubusercontent.com/1408720/34464826-2a946ba2-ee47-11e7-92a4-4afeb49dc9ca.png" width="200" height="auto"></td><td><img src="https://user-images.githubusercontent.com/1408720/34464847-9918fbb0-ee47-11e7-8d5f-0d42631c2bc0.png" width="200" height="auto"></td></tr></tbody></table>|
 
+
+Group Configuration
+-------------------
 
 
 Run Modes
