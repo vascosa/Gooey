@@ -253,12 +253,27 @@ Just about everything in Gooey's overall look and feel can be customized by pass
 | monospace_display | Uses a mono-spaced font in the output screen <br> :warning: **Deprecation notice:** See [Group Parameters](#group-configuration) for modern font configuration| 
 | image_dir | Path to the directory in which Gooey should look for custom images/icons |
 | language_dir | Path to the directory in which Gooey should look for custom languages files |
-| navigation_title | <img src="https://user-images.githubusercontent.com/1408720/34472159-1bfedbd0-ef10-11e7-8bc3-b6d69febb8c3.png" width="250" height="auto" align="right"> Controls the heading title above the SideBar's navigation pane. Defaults to: "Actions" |
 | disable_stop_button | Disable the `Stop` button when running |
 | progress_regex | A text regex used to pattern match runtime progress information. See: [Showing Progress](#showing-progress) for a detailed how-to | 
 | progress_expr | A python expression applied to any matches found via the `progress_regex`. See: [Showing Progress](#showing-progress) for a detailed how-to |
 | disable_progress_bar_animation | Disable the progress bar | 
 | navigation | Sets the "navigation" style of Gooey's top level window. <br>Options: <table> <thead> <tr><th>TABBED</th><th>SIDEBAR</th></tr></thead> <tbody> <tr> <td><img src="https://user-images.githubusercontent.com/1408720/34464826-2a946ba2-ee47-11e7-92a4-4afeb49dc9ca.png" width="200" height="auto"></td><td><img src="https://user-images.githubusercontent.com/1408720/34464847-9918fbb0-ee47-11e7-8d5f-0d42631c2bc0.png" width="200" height="auto"></td></tr></tbody></table>|
+| navigation_title | <img src="https://user-images.githubusercontent.com/1408720/34472159-1bfedbd0-ef10-11e7-8bc3-b6d69febb8c3.png" width="250" height="auto" align="right"> Controls the heading title above the SideBar's navigation pane. Defaults to: "Actions" |
+| show_sidebar | Show/Hide the sidebar in when navigation mode == `SIDEBAR` | 
+| body_bg_color | HEX value of the main Gooey window | 
+| header_bg_color | HEX value of the header background | 
+| header_height | height in pixels of the header | 
+| header_show_title | Show/Hide the header title | 
+| header_show_subtitle | Show/Hide the header subtitle | 
+| footer_bg_color | HEX value of the Footer background | 
+| sidebar_bg_color | HEX value of the Sidebar's background | 
+| terminal_panel_color | HEX value of the terminal's panel | 
+| terminal_font_color | HEX value of the font displayed in Gooey's terminal | 
+| terminal_font_family | Name of the Font Family to use in the terminal | 
+| terminal_font_weight | Weight of the font (NORMAL|BOLD) | 
+| terminal_font_size | Point size of the font displayed in the terminal | 
+| error_color | HEX value of the text displayed when a validation error occurs |
+
 
 
 Group Configuration
